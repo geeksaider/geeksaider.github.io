@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref, watchEffect } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch, watchEffect } from 'vue'
 import { ArrowDown, ArrowLeft, ArrowLeftRight, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, Clapperboard, CodeXml, Map, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
 
 const topicIcons = { music: Music2, films: Clapperboard, hobbies: Shapes }
@@ -21,15 +21,21 @@ const activeHobby = ref(0)
 const activeRoute = ref(0)
 const revealedFacts = ref(Array(10).fill(false))
 const swipeStart = ref(null)
+const swipeStartY = ref(null)
 const swipeType = ref(null)
 const swipePointer = ref(null)
 const dragX = ref(0)
+const swipeHint = ref(null)
+const hintedViews = new Set()
+let swipeHintTimer = null
+let swipeHintEndTimer = null
 const contactOpen = ref(false)
 const socialModal = ref(null)
 const scrollCueUp = ref(false)
 let scrollIntentAnchorY = 0
 let musicSwipeEndedAt = 0
 let filmSwipeEndedAt = 0
+let swipeStartedAt = 0
 const topicsGrid = ref(null)
 const topicScrollLeft = ref(0)
 const activeTopic = ref(0)
@@ -93,11 +99,11 @@ const content = {
     music: {
       title: 'Môj hudobný vkus',
       items: [
-        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg', spotify: 'https://open.spotify.com/track/52qHUftTZ4ypMKx1T7yDBk' },
-        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg', spotify: 'https://open.spotify.com/track/3ZaEs1O8BG581qYPHpQ8d6' },
-        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: '/photos/covers/everyday.jpg', spotify: 'https://open.spotify.com/track/3LsKaCwIuiWcPxTOSZApmE' },
-        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://images.universal-music.de/img/assets/165/165942/4/1200/invaders-must-die-0602517955608.jpg', spotify: 'https://open.spotify.com/track/144adL7pGHEWRwute2wxzZ' },
-        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/36/38/45/363845a9-dc46-1605-dce3-f41b1b11e97d/25UMGIM38812.rgb.jpg/1200x630wp-60.jpg', spotify: 'https://open.spotify.com/track/6m9YaHyWoW7h001KZTY2Pm' },
+        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02616d1121ab80e5f053e28a3d', spotify: 'https://open.spotify.com/track/52qHUftTZ4ypMKx1T7yDBk' },
+        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e022bb4bbf62bc82d2f4ce59397', spotify: 'https://open.spotify.com/track/3ZaEs1O8BG581qYPHpQ8d6' },
+        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e029d1f0a0a2f51944665bfc385', spotify: 'https://open.spotify.com/track/3LsKaCwIuiWcPxTOSZApmE' },
+        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02bce53a924b756cbaf8aa245c', spotify: 'https://open.spotify.com/track/144adL7pGHEWRwute2wxzZ' },
+        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e024232e3cf532af9835ea9d9a2', spotify: 'https://open.spotify.com/track/6m9YaHyWoW7h001KZTY2Pm' },
       ],
     },
     films: {
@@ -157,11 +163,11 @@ const content = {
     music: {
       title: 'My music taste',
       items: [
-        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg', spotify: 'https://open.spotify.com/track/52qHUftTZ4ypMKx1T7yDBk' },
-        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg', spotify: 'https://open.spotify.com/track/3ZaEs1O8BG581qYPHpQ8d6' },
-        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: '/photos/covers/everyday.jpg', spotify: 'https://open.spotify.com/track/3LsKaCwIuiWcPxTOSZApmE' },
-        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://images.universal-music.de/img/assets/165/165942/4/1200/invaders-must-die-0602517955608.jpg', spotify: 'https://open.spotify.com/track/144adL7pGHEWRwute2wxzZ' },
-        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/36/38/45/363845a9-dc46-1605-dce3-f41b1b11e97d/25UMGIM38812.rgb.jpg/1200x630wp-60.jpg', spotify: 'https://open.spotify.com/track/6m9YaHyWoW7h001KZTY2Pm' },
+        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02616d1121ab80e5f053e28a3d', spotify: 'https://open.spotify.com/track/52qHUftTZ4ypMKx1T7yDBk' },
+        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e022bb4bbf62bc82d2f4ce59397', spotify: 'https://open.spotify.com/track/3ZaEs1O8BG581qYPHpQ8d6' },
+        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e029d1f0a0a2f51944665bfc385', spotify: 'https://open.spotify.com/track/3LsKaCwIuiWcPxTOSZApmE' },
+        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02bce53a924b756cbaf8aa245c', spotify: 'https://open.spotify.com/track/144adL7pGHEWRwute2wxzZ' },
+        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e024232e3cf532af9835ea9d9a2', spotify: 'https://open.spotify.com/track/6m9YaHyWoW7h001KZTY2Pm' },
       ],
     },
     films: {
@@ -319,8 +325,9 @@ function openRoutes() {
 }
 
 function moveRoute(direction) {
+  stopSwipeHint('routes')
   activeRoute.value = (activeRoute.value + direction + cyclingRoutes.length) % cyclingRoutes.length
-  location.hash = `route-${activeRoute.value + 1}`
+  history.replaceState(null, '', `${location.pathname}${location.search}#route-${activeRoute.value + 1}`)
 }
 
 function updateScrollCue() {
@@ -388,27 +395,55 @@ function photoPosition(index) {
   return difference === 1 ? 'behind-right' : 'behind-left'
 }
 
+function stopSwipeHint(type) {
+  clearTimeout(swipeHintTimer)
+  clearTimeout(swipeHintEndTimer)
+  if (type) hintedViews.add(type)
+  swipeHint.value = null
+}
+
+function scheduleSwipeHint(type) {
+  stopSwipeHint()
+  if (!['music', 'films', 'hobbies', 'routes'].includes(type) || hintedViews.has(type)) return
+  if (!matchMedia('(max-width: 620px)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  swipeHintTimer = setTimeout(() => {
+    if (view.value !== type || swipeType.value) return
+    hintedViews.add(type)
+    swipeHint.value = type
+    swipeHintEndTimer = setTimeout(() => { swipeHint.value = null }, 850)
+  }, 2200)
+}
+
+watch(view, scheduleSwipeHint)
+
 function startSwipe(event, type) {
   if (event.pointerType === 'mouse' && event.button !== 0) return
-  if (type !== 'music' && type !== 'films') event.preventDefault()
+  stopSwipeHint(type)
+  if (type !== 'music' && type !== 'films' && type !== 'routes') event.preventDefault()
   window.getSelection()?.removeAllRanges()
   swipeStart.value = event.clientX
+  swipeStartY.value = event.clientY
+  swipeStartedAt = performance.now()
   swipeType.value = type
   swipePointer.value = event.pointerId
   dragX.value = 0
-  if (type !== 'music' && type !== 'films') event.currentTarget.setPointerCapture?.(event.pointerId)
+  if (type !== 'music' && type !== 'films' && type !== 'routes') event.currentTarget.setPointerCapture?.(event.pointerId)
 }
 
 function updateSwipe(event) {
   if (swipeStart.value === null || event.pointerId !== swipePointer.value) return
-  dragX.value = Math.max(-140, Math.min(140, event.clientX - swipeStart.value))
-  if ((swipeType.value === 'music' || swipeType.value === 'films') && Math.abs(dragX.value) > 8 && !event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+  const deltaX = event.clientX - swipeStart.value
+  const deltaY = event.clientY - swipeStartY.value
+  if (swipeType.value === 'routes' && (Math.abs(deltaX) < 9 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2)) return
+  dragX.value = Math.max(-140, Math.min(140, deltaX))
+  if (['music', 'films', 'routes'].includes(swipeType.value) && Math.abs(dragX.value) > 8 && !event.currentTarget.hasPointerCapture?.(event.pointerId)) {
     event.currentTarget.setPointerCapture?.(event.pointerId)
   }
 }
 
 function cancelSwipe() {
   swipeStart.value = null
+  swipeStartY.value = null
   swipeType.value = null
   swipePointer.value = null
   dragX.value = 0
@@ -418,9 +453,14 @@ function cancelSwipe() {
 function finishSwipe(event) {
   if (swipeStart.value === null || event.pointerId !== swipePointer.value) return
   const distance = event.clientX - swipeStart.value
+  const verticalDistance = event.clientY - swipeStartY.value
+  const elapsed = Math.max(1, performance.now() - swipeStartedAt)
   const type = swipeType.value
   cancelSwipe()
-  if (Math.abs(distance) <= 40) return
+  if (type === 'routes') {
+    if (Math.abs(distance) < Math.abs(verticalDistance) * 1.2) return
+    if (Math.abs(distance) < 28 && !(Math.abs(distance) > 16 && Math.abs(distance) / elapsed > .35)) return
+  } else if (Math.abs(distance) <= 40) return
 
   const direction = distance < 0 ? 1 : -1
   if (type === 'music') musicSwipeEndedAt = Date.now()
@@ -439,6 +479,7 @@ function onFilmCardClick(event, index) {
 }
 
 function moveInterest(type, direction) {
+  stopSwipeHint(type)
   if (type === 'music') activeMusic.value = (activeMusic.value + direction + t.value.music.items.length) % t.value.music.items.length
   if (type === 'films') moveFilm(direction)
   if (type === 'hobbies') activeHobby.value = (activeHobby.value + direction + t.value.hobbies.items.length) % t.value.hobbies.items.length
@@ -456,6 +497,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  stopSwipeHint()
   removeEventListener('hashchange', readHash)
   removeEventListener('scroll', updateScrollCue)
   removeEventListener('resize', updateScrollCue)
@@ -535,8 +577,8 @@ onUnmounted(() => {
       <div class="container inner-page">
         <div class="wrapped-heading"><h1>{{ t.music.title }}</h1></div>
         <div class="interest-layout">
-          <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'music' }" :style="{ '--drag-x': swipeType === 'music' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'music')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
-            <a v-for="(item, index) in t.music.items" :key="index" class="interest-card music-interest-card" :class="{ 'is-active': index === activeMusic, 'is-near': (index - activeMusic + t.music.items.length) % t.music.items.length <= 2 }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeMusic + t.music.items.length) % t.music.items.length}` }" :href="item.spotify" target="_blank" rel="noopener noreferrer" :tabindex="index === activeMusic ? 0 : -1" :aria-label="`${item.title} — ${item.artist}, Spotify`" draggable="false" @click="onMusicCardClick($event, index)">
+          <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'music', 'is-hinting': swipeHint === 'music' }" :style="{ '--drag-x': swipeType === 'music' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'music')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
+            <a v-for="(item, index) in t.music.items" :key="index" class="interest-card music-interest-card" :class="{ 'is-active': index === activeMusic, 'is-near': (index - activeMusic + t.music.items.length) % t.music.items.length <= 2 }" :style="{ '--card-color': item.color, '--card-ink': textColorFor(item.color), '--card-offset': `${(index - activeMusic + t.music.items.length) % t.music.items.length}` }" :href="item.spotify" target="_blank" rel="noopener noreferrer" :tabindex="index === activeMusic ? 0 : -1" :aria-label="`${item.title} — ${item.artist}, Spotify`" draggable="false" @click="onMusicCardClick($event, index)">
               <span class="card-index">0{{ index + 1 }}</span><img :src="item.cover" :alt="`${item.title} — ${item.artist}`" draggable="false" @error="$event.currentTarget.style.display = 'none'">
             </a>
             <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in t.music.items" :key="index" :class="{ active: index === activeMusic }"></i></div>
@@ -554,7 +596,7 @@ onUnmounted(() => {
       <div class="container inner-page">
         <div class="wrapped-heading"><h1>{{ t.films.title }}</h1></div>
         <div class="interest-layout">
-          <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'films' }" :style="{ '--drag-x': swipeType === 'films' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'films')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
+          <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'films', 'is-hinting': swipeHint === 'films' }" :style="{ '--drag-x': swipeType === 'films' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'films')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
             <a v-for="(item, index) in t.films.items" :key="index" class="interest-card film-interest-card" :class="{ 'is-active': index === activeFilm, 'is-near': (index - activeFilm + t.films.items.length) % t.films.items.length <= 2 }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeFilm + t.films.items.length) % t.films.items.length}` }" :href="item.imdb" target="_blank" rel="noopener noreferrer" :tabindex="index === activeFilm ? 0 : -1" :aria-label="`${item.title}, IMDb`" draggable="false" @click="onFilmCardClick($event, index)">
               <span class="card-index">0{{ index + 1 }}</span>
               <img :src="item.cover" :alt="item.title" draggable="false" @error="$event.currentTarget.style.display = 'none'">
@@ -575,7 +617,7 @@ onUnmounted(() => {
       <div class="container inner-page">
         <div class="wrapped-heading"><h1>{{ t.hobbies.title }}</h1></div>
         <div class="interest-layout hobbies-layout">
-          <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'hobbies' }" :style="{ '--drag-x': swipeType === 'hobbies' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'hobbies')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
+          <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'hobbies', 'is-hinting': swipeHint === 'hobbies' }" :style="{ '--drag-x': swipeType === 'hobbies' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'hobbies')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
             <article
               v-for="(item, index) in t.hobbies.items"
               :key="index"
@@ -603,7 +645,7 @@ onUnmounted(() => {
       <div class="container inner-page">
         <div class="wrapped-heading"><h1>{{ t.hobbies.routes }}</h1></div>
         <div class="route-carousel-layout">
-          <div class="route-stack" :class="{ 'is-dragging': swipeType === 'routes' }" :style="{ '--drag-x': swipeType === 'routes' ? `${dragX}px` : '0px' }" tabindex="0" :aria-label="t.hobbies.routes" @pointerdown="startSwipe($event, 'routes')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe" @keydown.left.prevent="moveRoute(-1)" @keydown.right.prevent="moveRoute(1)">
+          <div class="route-stack" :class="{ 'is-dragging': swipeType === 'routes', 'is-hinting': swipeHint === 'routes' }" :style="{ '--drag-x': swipeType === 'routes' ? `${dragX}px` : '0px' }" tabindex="0" :aria-label="t.hobbies.routes" @pointerdown="startSwipe($event, 'routes')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe" @keydown.left.prevent="moveRoute(-1)" @keydown.right.prevent="moveRoute(1)">
             <article v-for="(route, index) in cyclingRoutes" :key="route.src" class="interest-card route-interest-card" :class="{ 'is-active': index === activeRoute, 'is-near': (index - activeRoute + cyclingRoutes.length) % cyclingRoutes.length <= 2 }" :style="{ '--card-offset': `${(index - activeRoute + cyclingRoutes.length) % cyclingRoutes.length}` }">
               <img v-if="(index - activeRoute + cyclingRoutes.length) % cyclingRoutes.length <= 2" :src="route.src" :alt="`${routeLabel(route, index)} — ${routeDistance(route)} km`" draggable="false">
             </article>
