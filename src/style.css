@@ -16,8 +16,7 @@ button { font: inherit; cursor: pointer; }
 a { text-decoration: none; }
 ::selection { background: var(--acid); }
 .app { overflow: hidden; }
-.container { width: min(calc(100% - 40px), 1180px); margin-inline: auto; }
-.home-page .container, .topbar.home-topbar { max-width: 1060px; }
+.container { width: min(calc(100% - 40px), 1060px); margin-inline: auto; }
 .topbar { height: 64px; display: grid; grid-template-columns: 1fr 1fr; align-items: center; border-bottom: 1px solid var(--line); }
 .logo { width: fit-content; padding: 0; background: none; border: 0; font-size: 25px; font-weight: 900; letter-spacing: -0.1em; }
 .logo span { color: var(--violet); }
@@ -89,13 +88,13 @@ a { text-decoration: none; }
 
 .wrapped-page { min-height: calc(100svh - 64px); background: var(--active, var(--acid)); transition: background 350ms ease; }
 .inner-page { padding-block: 42px 65px; }
-.back-button { display: inline-flex; align-items: center; gap: 11px; min-width: 122px; padding: 13px 20px; color: white; background: var(--ink); border: 1px solid var(--ink); border-radius: 999px; box-shadow: 4px 4px white; font-size: 13px; font-weight: 850; text-transform: uppercase; transition: transform 160ms ease, box-shadow 160ms ease; }
+.back-button { display: inline-flex; width: fit-content; justify-self: start; align-items: center; gap: 11px; min-width: 122px; padding: 13px 20px; color: white; background: var(--ink); border: 1px solid var(--ink); border-radius: 999px; box-shadow: 4px 4px white; font-size: 13px; font-weight: 850; text-transform: uppercase; transition: transform 160ms ease, box-shadow 160ms ease; }
 .back-button:hover { box-shadow: 1px 1px white; transform: translate(3px, 3px); }
 .back-button:active { transform: translate(4px, 4px) scale(0.98); }
-.wrapped-heading { margin-top: 54px; }
+.wrapped-heading { margin-top: 0; }
 .wrapped-heading h1 { margin: 0; font-size: clamp(58px, 9vw, 120px); line-height: 0.84; letter-spacing: -0.085em; }
-.interest-layout { display: grid; grid-template-columns: minmax(280px, 0.85fr) 1.15fr; gap: clamp(45px, 8vw, 120px); align-items: center; margin: 52px auto 0; max-width: 980px; }
-.interest-stack { position: relative; width: min(100%, 410px); aspect-ratio: 0.78; justify-self: center; touch-action: pan-y; user-select: none; cursor: grab; }
+.interest-layout { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(45px, 8vw, 100px); align-items: center; margin: 52px 0 0; }
+.interest-stack { position: relative; width: min(100%, 410px); aspect-ratio: 0.78; justify-self: start; touch-action: pan-y; user-select: none; cursor: grab; }
 .interest-stack:active { cursor: grabbing; }
 .interest-card { position: absolute; inset: 0; overflow: hidden; color: white; background: var(--card-color); border: 1px solid var(--ink); border-radius: 32px; box-shadow: 8px 8px var(--ink); transform: translateY(calc(var(--card-offset) * 12px)) scale(calc(1 - var(--card-offset) * .045)) rotate(calc(var(--card-offset) * 2deg)); transform-origin: bottom center; transition: transform 300ms ease, opacity 300ms ease; }
 .interest-card:not(.is-active) { opacity: .72; pointer-events: none; }
@@ -167,35 +166,23 @@ a { text-decoration: none; }
 .social-modal a { display: flex; justify-content: space-between; padding: 17px 0; border-top: 1px solid var(--line); font-size: 16px; font-weight: 800; }
 .social-modal a span { display: inline-flex; align-items: center; gap: 5px; font: 11px ui-monospace, monospace; }
 .modal-close { position: absolute; top: 15px; right: 18px; display: grid; width: 34px; height: 34px; place-items: center; background: var(--acid); border: 1px solid; border-radius: 50%; }
-.cycling-routes { margin-top: 72px; }
-.cycling-routes-heading { display: flex; align-items: baseline; gap: 16px; margin-bottom: 20px; }
-.cycling-routes-heading h3 { margin: 0; font-size: clamp(28px, 4vw, 44px); line-height: 1; letter-spacing: -.06em; }
-.cycling-routes-list { display: grid; grid-auto-columns: minmax(190px, 220px); grid-auto-flow: column; gap: 16px; padding: 3px 8px 14px 2px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; }
-.cycling-route-card { display: flex; min-width: 0; min-height: 230px; flex-direction: column; align-items: stretch; padding: 18px; text-align: left; background: var(--violet); border: 1px solid var(--ink); border-radius: 22px; box-shadow: 5px 5px var(--ink); scroll-snap-align: start; transition: transform 180ms ease; }
-.cycling-route-card:nth-child(3n+2) { background: var(--blue); }
-.cycling-route-card:nth-child(3n+3) { background: var(--pink); }
-.cycling-route-card:hover { transform: translateY(-4px); }
-.route-card-top, .route-card-action { display: flex; align-items: center; justify-content: space-between; gap: 8px; font: 800 10px ui-monospace, monospace; text-transform: uppercase; }
-.cycling-route-card > strong { margin-top: auto; font-size: 39px; line-height: 1; letter-spacing: -.07em; white-space: nowrap; }
-.cycling-route-card > strong small { font-size: 15px; letter-spacing: -.02em; }
-.route-card-meta { margin-top: 8px; font: 800 11px ui-monospace, monospace; white-space: nowrap; }
-.route-card-action { margin-top: 22px; padding-top: 12px; border-top: 1px solid currentColor; }
-.route-dialog { position: relative; width: min(100%, 620px); max-height: min(90vh, 740px); padding: 26px; overflow-y: auto; color: var(--ink); background: var(--paper); border: 1px solid var(--ink); border-radius: 30px; box-shadow: 10px 10px var(--acid); outline: none; }
-.route-dialog-heading, .route-dialog-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; font: 800 11px ui-monospace, monospace; text-transform: uppercase; }
-.route-dialog-heading { padding-right: 45px; }
-.route-dialog-heading small { font: inherit; }
-.route-swipe-surface { position: relative; min-height: 400px; margin-top: 20px; padding: 34px; overflow: hidden; background: var(--violet); border: 1px solid var(--ink); border-radius: 22px; touch-action: pan-y; user-select: none; transform: translateX(var(--drag-x)); transition: transform 180ms ease; }
-.route-swipe-surface.is-dragging { transition: none; }
-.route-swipe-surface h2 { position: relative; margin: 0 0 28px; font-size: clamp(34px, 8vw, 60px); line-height: .95; letter-spacing: -.07em; }
-.route-detail-stats { position: relative; display: grid; gap: 10px; }
-.route-detail-stats > div { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; padding: 12px 0; border-top: 1px solid #12131080; }
-.route-detail-stats small { font: 800 11px ui-monospace, monospace; text-transform: uppercase; }
-.route-detail-stats strong { font-size: clamp(22px, 5vw, 34px); line-height: 1; letter-spacing: -.06em; white-space: nowrap; }
-.route-detail-stats strong span { font-size: 15px; letter-spacing: 0; }
-.route-swipe-surface p { position: relative; margin: 19px 0 0; font: 700 11px ui-monospace, monospace; }
-.route-dialog-footer { margin-top: 20px; }
-.route-dialog-footer > span { text-align: center; }
-.route-nav-button { display: grid; width: 44px; height: 44px; flex: 0 0 44px; place-items: center; color: white; background: var(--ink); border: 1px solid var(--ink); border-radius: 50%; }
+.hobbies-layout { align-items: start; }
+.hobby-side { min-width: 0; padding-top: clamp(36px, 8vw, 96px); }
+.cycling-routes { margin-top: 30px; border: 1px solid var(--ink); border-radius: 20px; background: var(--paper); overflow: hidden; }
+.cycling-routes summary { display: flex; align-items: center; cursor: pointer; list-style: none; }
+.cycling-routes summary::-webkit-details-marker { display: none; }
+.cycling-routes > summary { justify-content: space-between; gap: 14px; min-height: 58px; padding: 14px 18px; font-size: 21px; font-weight: 850; letter-spacing: -.045em; }
+.cycling-routes summary svg { flex: 0 0 auto; transition: transform 180ms ease; }
+.cycling-routes[open] > summary svg, .cycling-route[open] > summary svg { transform: rotate(180deg); }
+.cycling-routes-list { border-top: 1px solid var(--ink); }
+.cycling-route + .cycling-route { border-top: 1px solid var(--line); }
+.cycling-route > summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 17px; gap: 12px; min-height: 52px; padding: 11px 18px; font-size: 13px; font-weight: 750; }
+.cycling-route > summary:hover { background: #7657ff18; }
+.cycling-route > summary strong { font-size: 16px; letter-spacing: -.04em; white-space: nowrap; }
+.cycling-route-details { display: grid; gap: 10px; padding: 8px 18px 18px; background: #7657ff13; }
+.cycling-route-details > div { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; }
+.cycling-route-details strong { white-space: nowrap; }
+.cycling-route-details small { font-size: 10px; opacity: .65; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes cover-in { from { opacity: 0; transform: scale(1.035); } to { opacity: 1; transform: scale(1); } }
@@ -206,13 +193,13 @@ a { text-decoration: none; }
   .profile-art { width: min(90%, 480px); justify-self: center; }
   .topic-grid { margin-left: 0; }
   .music-layout { grid-template-columns: minmax(260px, 0.8fr) 1.2fr; gap: 45px; }
-  .interest-layout { grid-template-columns: minmax(240px, .85fr) 1.15fr; gap: 40px; }
+  .interest-layout { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 40px; }
 }
 
 @media (max-width: 620px) {
   .container { width: calc(100% - 30px); }
   .topbar { height: calc(62px + env(safe-area-inset-top, 0px)); grid-template-columns: 1fr 1fr; padding-top: env(safe-area-inset-top, 0px); }
-  .topbar.inner-topbar { width: 100%; padding-inline: max(15px, env(safe-area-inset-left, 0px)) max(15px, env(safe-area-inset-right, 0px)); background: var(--header-bg); border-bottom: 0; transition: background 350ms ease; }
+  .topbar.inner-topbar { width: 100%; padding-inline: max(15px, env(safe-area-inset-left, 0px)) max(15px, env(safe-area-inset-right, 0px)); background: var(--paper); border-bottom: 1px solid var(--line); }
   .profile { min-height: auto; padding-block: 38px 105px; gap: 38px; }
   .profile h1 { font-size: clamp(82px, 27vw, 125px); }
   .profile-actions { align-items: stretch; flex-direction: column; gap: 18px; }
@@ -232,13 +219,13 @@ a { text-decoration: none; }
   .topic-grid { display: flex; width: calc(100% + 15px); padding: 4px 15px 12px 0; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .topic-card { min-width: min(82vw, 320px); min-height: 320px; border-radius: 25px; scroll-snap-align: start; }
   .wrapped-page { min-height: 100svh; }
-  .inner-page { padding-top: 16px; padding-bottom: max(35px, env(safe-area-inset-bottom, 0px)); }
+  .inner-page { padding-top: 28px; padding-bottom: max(35px, env(safe-area-inset-bottom, 0px)); }
   .back-button { min-width: 0; padding: 10px 16px; }
-  .wrapped-heading { margin-top: 18px; }
   .wrapped-heading h1 { font-size: clamp(43px, 11vw, 56px); line-height: .9; }
   .music-layout { grid-template-columns: 1fr; gap: 34px; margin-top: 38px; }
-  .interest-layout { grid-template-columns: 1fr; gap: 50px; margin-top: 20px; }
-  .interest-stack { width: min(100%, 350px, max(220px, calc((100svh - 285px - env(safe-area-inset-top, 0px)) * .78))); }
+  .interest-layout { grid-template-columns: 1fr; gap: 40px; margin-top: 28px; }
+  .hobby-side { padding-top: 0; }
+  .interest-stack { width: min(100%, 350px, max(220px, calc((100svh - 285px - env(safe-area-inset-top, 0px)) * .78))); justify-self: center; }
   .interest-card:not(.is-active) { transform: translateY(calc(var(--card-offset) * 6px)) scale(calc(1 - var(--card-offset) * .045)) rotate(calc(var(--card-offset) * 2deg)); }
   .interest-copy h2 { font-size: 44px; }
   .card-controls { display: none; }
@@ -252,14 +239,7 @@ a { text-decoration: none; }
   .film-card { grid-template-columns: 1fr; gap: 40px; }
   .film-poster { width: min(100%, 300px); justify-self: center; }
   .film-info h2 { font-size: 39px; }
-  .cycling-routes { margin-top: 48px; }
-  .cycling-routes-list { grid-auto-columns: minmax(175px, 61vw); gap: 12px; }
-  .route-dialog { padding: 17px; border-radius: 22px; }
-  .route-swipe-surface { min-height: 370px; padding: 25px 20px; }
-  .route-detail-stats > div { display: block; }
-  .route-detail-stats strong { display: block; margin-top: 6px; }
-  .route-nav-button { display: none; }
-  .route-dialog-footer { justify-content: center; }
+  .cycling-routes { margin-top: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,6 @@
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, Clapperboard, CodeXml, ExternalLink, Eye, LockKeyhole, Mail, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, ChevronDown, Clapperboard, CodeXml, ExternalLink, Eye, LockKeyhole, Mail, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
 
 const topicIcons = { music: Music2, films: Clapperboard, hobbies: Shapes }
 const hobbyIcons = [BriefcaseBusiness, CodeXml, Bike, Music2]
@@ -18,10 +18,6 @@ const swipePointer = ref(null)
 const dragX = ref(0)
 const contactOpen = ref(false)
 const atPageEnd = ref(false)
-const routeOpen = ref(false)
-const activeRoute = ref(0)
-const routeDialog = ref(null)
-let routeTrigger = null
 
 const photos = [
   { src: '/photos/cycling-stats.jpg', tone: 'photo-one', alt: 'Nikita v meste' },
@@ -166,10 +162,6 @@ const content = {
 const t = computed(() => content[language.value])
 const currentMusic = computed(() => t.value.music.items[activeMusic.value])
 const currentFilm = computed(() => t.value.films.items[activeFilm.value])
-const currentRoute = computed(() => cyclingRoutes[activeRoute.value])
-const themeColor = computed(() => view.value === 'music' ? currentMusic.value.color : view.value === 'films' ? currentFilm.value.color : '#f4f1e8')
-
-watch(themeColor, (color) => document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color), { immediate: true })
 
 function formatRouteNumber(value) {
   return new Intl.NumberFormat(language.value === 'sk' ? 'sk-SK' : 'en-US', {
@@ -194,19 +186,6 @@ function routeNumber(index) {
   return String(index + 1).padStart(2, '0')
 }
 
-function openRoute(index, event) {
-  routeTrigger = event.currentTarget
-  activeRoute.value = index
-  routeOpen.value = true
-  nextTick(() => routeDialog.value?.focus())
-}
-
-function closeRoute() {
-  routeOpen.value = false
-  cancelSwipe()
-  nextTick(() => routeTrigger?.focus())
-}
-
 function setLanguage(value) {
   language.value = value
   document.documentElement.lang = value
@@ -214,7 +193,6 @@ function setLanguage(value) {
 }
 
 function readHash() {
-  if (routeOpen.value) closeRoute()
   const hash = location.hash.slice(1)
   view.value = ['music', 'films', 'hobbies'].includes(hash) ? hash : 'home'
   nextTick(() => {
@@ -228,7 +206,6 @@ function openView(value) {
 }
 
 function goHome() {
-  if (routeOpen.value) closeRoute()
   history.pushState(null, '', location.pathname + location.search)
   view.value = 'home'
   nextTick(() => {
@@ -315,7 +292,6 @@ function moveInterest(type, direction) {
   if (type === 'music') activeMusic.value = (activeMusic.value + direction + t.value.music.items.length) % t.value.music.items.length
   if (type === 'films') moveFilm(direction)
   if (type === 'hobbies') activeHobby.value = (activeHobby.value + direction + t.value.hobbies.items.length) % t.value.hobbies.items.length
-  if (type === 'routes') activeRoute.value = (activeRoute.value + direction + cyclingRoutes.length) % cyclingRoutes.length
 }
 
 onMounted(() => {
@@ -336,8 +312,9 @@ onUnmounted(() => {
 
 <template>
   <div class="app">
-    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home', 'home-topbar': view === 'home' }" :style="{ '--header-bg': themeColor }">
-      <button class="logo" aria-label="Home" @click="goHome">N<span>.</span></button>
+    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home', 'home-topbar': view === 'home' }">
+      <button v-if="view === 'home'" class="logo" aria-label="Home" @click="goHome">N<span>.</span></button>
+      <button v-else class="back-button" @click="goHome"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
       <div class="language-picker">
         <button :class="{ active: language === 'sk' }" @click="setLanguage('sk')">SK</button>
         <i>/</i>
@@ -402,7 +379,6 @@ onUnmounted(() => {
 
     <main v-else-if="view === 'music'" class="wrapped-page music-page" :style="{ '--active': currentMusic.color }">
       <div class="container inner-page">
-        <button class="back-button" @click="goHome"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
         <div class="wrapped-heading"><h1>{{ t.music.title }}</h1></div>
         <div class="interest-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'music' }" :style="{ '--drag-x': swipeType === 'music' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'music')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
@@ -422,7 +398,6 @@ onUnmounted(() => {
 
     <main v-else-if="view === 'films'" class="wrapped-page films-page" :style="{ '--active': currentFilm.color }">
       <div class="container inner-page">
-        <button class="back-button" @click="goHome"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
         <div class="wrapped-heading"><h1>{{ t.films.title }}</h1></div>
         <div class="interest-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'films' }" :style="{ '--drag-x': swipeType === 'films' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'films')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
@@ -444,7 +419,6 @@ onUnmounted(() => {
 
     <main v-else class="wrapped-page hobbies-page">
       <div class="container inner-page">
-        <button class="back-button" @click="goHome"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
         <div class="wrapped-heading"><h1>{{ t.hobbies.title }}</h1></div>
         <div class="interest-layout hobbies-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'hobbies' }" :style="{ '--drag-x': swipeType === 'hobbies' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'hobbies')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
@@ -460,23 +434,28 @@ onUnmounted(() => {
               <h2>{{ item.title }}</h2>
             </article>
           </div>
-          <div class="interest-copy">
-            <div class="interest-title-slot"><h2 v-for="(item, index) in t.hobbies.items" :key="item.title" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.title }}</h2></div>
-            <div class="interest-meta-slot"><p v-for="(item, index) in t.hobbies.items" :key="item.title" class="hobby-details" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.details }}</p></div>
-            <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
+          <div class="hobby-side">
+            <div class="interest-copy">
+              <div class="interest-title-slot"><h2 v-for="(item, index) in t.hobbies.items" :key="item.title" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.title }}</h2></div>
+              <div class="interest-meta-slot"><p v-for="(item, index) in t.hobbies.items" :key="item.title" class="hobby-details" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.details }}</p></div>
+              <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
+            </div>
+            <details v-if="activeHobby === 2" class="cycling-routes">
+              <summary><span>{{ t.hobbies.routes }}</span><ChevronDown :size="22" aria-hidden="true" /></summary>
+              <div class="cycling-routes-list">
+                <details v-for="(route, index) in cyclingRoutes" :key="route.src" class="cycling-route">
+                  <summary><span>{{ t.hobbies.route }} {{ routeNumber(index) }}</span><strong>{{ routeDistance(route) }} km</strong><ChevronDown :size="17" aria-hidden="true" /></summary>
+                  <div class="cycling-route-details">
+                    <div><span>{{ t.hobbies.distance }}</span><strong>{{ routeDistance(route) }} km</strong></div>
+                    <div><span>{{ t.hobbies.duration }}</span><strong>{{ routeDuration(route) }}</strong></div>
+                    <div><span>{{ t.hobbies.speed }}</span><strong>≈ {{ routeSpeed(route) }} km/h</strong></div>
+                    <small>{{ t.hobbies.speedNote }}</small>
+                  </div>
+                </details>
+              </div>
+            </details>
           </div>
         </div>
-        <section v-if="activeHobby === 2" class="cycling-routes" :aria-label="t.hobbies.routes">
-          <div class="cycling-routes-heading"><h3>{{ t.hobbies.routes }}</h3></div>
-          <div class="cycling-routes-list">
-            <button v-for="(route, index) in cyclingRoutes" :key="route.src" type="button" class="cycling-route-card" :aria-label="`${t.hobbies.openRoute}: ${t.hobbies.route} ${routeNumber(index)}, ${routeDistance(route)} km`" @click="openRoute(index, $event)">
-              <span class="route-card-top">{{ t.hobbies.route }} {{ routeNumber(index) }}</span>
-              <strong>{{ routeDistance(route) }} <small>km</small></strong>
-              <span class="route-card-meta">{{ routeDuration(route) }} <span>·</span> ≈ {{ routeSpeed(route) }} km/h</span>
-              <span class="route-card-action">{{ t.hobbies.openRoute }} <ArrowRight :size="17" aria-hidden="true" /></span>
-            </button>
-          </div>
-        </section>
       </div>
     </main>
 
@@ -488,25 +467,5 @@ onUnmounted(() => {
       </section>
     </div>
 
-    <div v-if="routeOpen" class="modal-backdrop route-modal-backdrop" @click.self="closeRoute">
-      <section ref="routeDialog" class="route-dialog" role="dialog" aria-modal="true" :aria-label="`${t.hobbies.route} ${routeNumber(activeRoute)}`" tabindex="-1" @keydown.esc="closeRoute" @keydown.left="moveInterest('routes', -1)" @keydown.right="moveInterest('routes', 1)">
-        <button type="button" class="modal-close" :aria-label="t.hobbies.closeRoute" @click="closeRoute"><X :size="20" aria-hidden="true" /></button>
-        <div class="route-dialog-heading"><small>{{ t.hobbies.routes }}</small><span>{{ routeNumber(activeRoute) }} / {{ cyclingRoutes.length }}</span></div>
-        <div class="route-swipe-surface" :class="{ 'is-dragging': swipeType === 'routes' }" :style="{ '--drag-x': swipeType === 'routes' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'routes')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
-          <h2>{{ t.hobbies.route }}</h2>
-          <div class="route-detail-stats">
-            <div><small>{{ t.hobbies.distance }}</small><strong>{{ routeDistance(currentRoute) }} <span>km</span></strong></div>
-            <div><small>{{ t.hobbies.duration }}</small><strong>{{ routeDuration(currentRoute) }}</strong></div>
-            <div><small>{{ t.hobbies.speed }}</small><strong>≈ {{ routeSpeed(currentRoute) }} <span>km/h</span></strong></div>
-          </div>
-          <p>{{ t.hobbies.speedNote }}</p>
-        </div>
-        <div class="route-dialog-footer">
-          <button type="button" class="route-nav-button" :aria-label="t.hobbies.previousRoute" @click="moveInterest('routes', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button>
-          <span>{{ t.hobbies.swipeRoutes }}</span>
-          <button type="button" class="route-nav-button" :aria-label="t.hobbies.nextRoute" @click="moveInterest('routes', 1)"><ArrowRight :size="21" aria-hidden="true" /></button>
-        </div>
-      </section>
-    </div>
   </div>
 </template>
