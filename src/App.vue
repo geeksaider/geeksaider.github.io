@@ -1,6 +1,6 @@
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, ChevronDown, Clapperboard, CodeXml, ExternalLink, Mail, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, Clapperboard, CodeXml, ExternalLink, Mail, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
 
 const topicIcons = { music: Music2, films: Clapperboard, hobbies: Shapes }
 const hobbyIcons = [BriefcaseBusiness, CodeXml, Bike, Music2]
@@ -12,8 +12,6 @@ const activeFilm = ref(0)
 const activePhoto = ref(0)
 const activeHobby = ref(0)
 const activeRoute = ref(0)
-const routesExpanded = ref(true)
-const routesDetails = ref(null)
 const revealedFacts = ref(Array(10).fill(false))
 const swipeStart = ref(null)
 const swipeType = ref(null)
@@ -172,10 +170,6 @@ const t = computed(() => content[language.value])
 const currentMusic = computed(() => t.value.music.items[activeMusic.value])
 const currentFilm = computed(() => t.value.films.items[activeFilm.value])
 
-watch(activeHobby, (index) => {
-  if (index === 2) routesExpanded.value = true
-})
-
 function formatRouteNumber(value) {
   return new Intl.NumberFormat(language.value === 'sk' ? 'sk-SK' : 'en-US', {
     minimumFractionDigits: 1,
@@ -212,21 +206,19 @@ function setLanguage(value) {
 function readHash() {
   const hash = location.hash.slice(1)
   const routeMatch = /^route-(\d+)$/.exec(hash)
-  const fromRoute = view.value === 'route'
+  const fromRoutes = view.value === 'routes'
   if (routeMatch && Number(routeMatch[1]) >= 1 && Number(routeMatch[1]) <= cyclingRoutes.length) {
     activeRoute.value = Number(routeMatch[1]) - 1
     activeHobby.value = 2
-    view.value = 'route'
+    view.value = 'routes'
+  } else if (hash === 'routes') {
+    activeHobby.value = 2
+    view.value = 'routes'
   } else {
     view.value = ['music', 'films', 'hobbies'].includes(hash) ? hash : 'home'
   }
   nextTick(() => {
-    if (fromRoute && view.value === 'hobbies') {
-      routesExpanded.value = true
-      nextTick(() => routesDetails.value?.scrollIntoView({ block: 'start' }))
-    } else {
-      window.scrollTo(0, 0)
-    }
+    if (!(fromRoutes && view.value === 'routes')) window.scrollTo(0, 0)
     updateScrollCue()
   })
 }
@@ -245,18 +237,20 @@ function goHome() {
 }
 
 function goBack() {
-  if (view.value === 'route') {
-    routesExpanded.value = true
+  if (view.value === 'routes') {
     location.hash = 'hobbies'
   } else {
     goHome()
   }
 }
 
-function openRoute(index) {
-  activeRoute.value = index
-  routesExpanded.value = true
-  location.hash = `route-${index + 1}`
+function openRoutes() {
+  location.hash = 'routes'
+}
+
+function moveRoute(direction) {
+  activeRoute.value = (activeRoute.value + direction + cyclingRoutes.length) % cyclingRoutes.length
+  location.hash = `route-${activeRoute.value + 1}`
 }
 
 function updateScrollCue() {
@@ -326,6 +320,7 @@ function finishSwipe(event) {
 
   const direction = distance < 0 ? 1 : -1
   if (type === 'photos') activePhoto.value = (activePhoto.value + direction + photos.length) % photos.length
+  else if (type === 'routes') moveRoute(direction)
   else moveInterest(type, direction)
 }
 
@@ -388,15 +383,15 @@ onUnmounted(() => {
       </section>
 
       <section class="facts container" :aria-label="t.facts.title">
-        <div class="facts-folder">
-          <div class="facts-heading"><h2>{{ t.facts.title }}</h2><span>{{ language === 'sk' ? 'ťukni a odkry' : 'tap to reveal' }}</span></div>
-          <div class="facts-grid">
-            <div v-for="(question, index) in t.facts.questions" :key="index" class="fact-row">
-              <h3>{{ question[0] }}</h3>
-              <button type="button" class="fact-reveal" :class="{ 'is-revealed': revealedFacts[index] }" :disabled="question[3] === null" :aria-label="`${question[0]} ${revealedFacts[index] ? question[question[3]] : language === 'sk' ? 'odkryť odpoveď' : 'reveal answer'}`" :aria-pressed="revealedFacts[index]" @click="revealedFacts[index] = true">
-                <span v-if="revealedFacts[index]">{{ question[question[3]] }}</span><span v-else aria-hidden="true">?</span>
-              </button>
-            </div>
+        <div class="facts-heading"><h2>{{ t.facts.title }}</h2><span>{{ language === 'sk' ? 'ťukni na odpoveď' : 'tap an answer' }}</span></div>
+        <div class="facts-grid">
+          <div v-for="(question, index) in t.facts.questions" :key="index" class="fact-note">
+            <i class="note-magnet" aria-hidden="true"></i>
+            <h3>{{ question[0] }}</h3>
+            <button type="button" class="fact-reveal" :class="{ 'is-revealed': revealedFacts[index] }" :disabled="question[3] === null" :aria-label="`${question[0]} ${revealedFacts[index] ? question[question[3]] : language === 'sk' ? 'odkryť odpoveď' : 'reveal answer'}`" :aria-pressed="revealedFacts[index]" @click="revealedFacts[index] = true">
+              <span class="fact-answer" :class="{ 'is-hidden': !revealedFacts[index] }">{{ question[question[3]] }}</span>
+              <span v-if="!revealedFacts[index]" class="fact-sparkles" :data-text="question[question[3]]" aria-hidden="true">{{ question[question[3]] }}</span>
+            </button>
           </div>
         </div>
       </section>
@@ -455,10 +450,7 @@ onUnmounted(() => {
     <main v-else-if="view === 'hobbies'" class="wrapped-page hobbies-page">
       <div class="container inner-page">
         <div class="wrapped-heading"><h1>{{ t.hobbies.title }}</h1></div>
-        <nav class="hobby-tabs" :aria-label="t.menu.hobbies.title">
-          <button v-for="(item, index) in t.hobbies.items" :key="item.title" type="button" :class="{ active: index === activeHobby }" :aria-pressed="index === activeHobby" @click="activeHobby = index">{{ item.title }}</button>
-        </nav>
-        <div class="interest-layout hobbies-layout">
+        <div class="interest-layout hobbies-layout" :class="{ 'is-cycling': activeHobby === 2 }">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'hobbies' }" :style="{ '--drag-x': swipeType === 'hobbies' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'hobbies')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
             <article
               v-for="(item, index) in t.hobbies.items"
@@ -471,21 +463,18 @@ onUnmounted(() => {
               <component :is="hobbyIcons[index]" class="hobby-symbol" :size="112" :stroke-width="1.5" aria-hidden="true" />
               <h2>{{ item.title }}</h2>
             </article>
+            <nav class="hobby-card-nav" :aria-label="t.menu.hobbies.title" @pointerdown.stop @pointerup.stop @pointercancel.stop>
+              <button type="button" :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="19" aria-hidden="true" /></button>
+              <span>{{ activeHobby + 1 }} / {{ t.hobbies.items.length }}</span>
+              <button type="button" :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="19" aria-hidden="true" /></button>
+            </nav>
           </div>
           <div class="hobby-side">
             <div class="interest-copy">
               <div class="interest-title-slot"><h2 v-for="(item, index) in t.hobbies.items" :key="item.title" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.title }}</h2></div>
               <div class="interest-meta-slot"><p v-for="(item, index) in t.hobbies.items" :key="item.title" class="hobby-details" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.details }}</p></div>
-              <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
+              <button v-if="activeHobby === 2" class="routes-cta" type="button" @click="openRoutes">{{ t.hobbies.openRoute }} <ArrowUpRight :size="20" aria-hidden="true" /></button>
             </div>
-            <details v-if="activeHobby === 2" ref="routesDetails" class="cycling-routes" :open="routesExpanded" @toggle="routesExpanded = $event.target.open">
-              <summary><span>{{ t.hobbies.routes }} <small>10</small></span><ChevronDown :size="22" aria-hidden="true" /></summary>
-              <div class="cycling-routes-list">
-                <a v-for="(route, index) in cyclingRoutes" :key="route.src" class="cycling-route-link" :href="`#route-${index + 1}`" @click.prevent="openRoute(index)">
-                  <span><small>{{ routeNumber(index) }}</small>{{ routeLabel(route, index) }}</span><strong>{{ routeDistance(route) }} km</strong><ArrowUpRight :size="18" aria-hidden="true" />
-                </a>
-              </div>
-            </details>
           </div>
         </div>
       </div>
@@ -493,21 +482,28 @@ onUnmounted(() => {
 
     <main v-else class="wrapped-page route-page">
       <div class="container inner-page">
-        <div class="route-page-heading">
-          <small>{{ t.hobbies.route }} {{ routeNumber(activeRoute) }}</small>
-          <h1>{{ routeLabel(cyclingRoutes[activeRoute], activeRoute) }}</h1>
+        <div class="route-overview-heading"><span>{{ t.hobbies.routes }}</span><strong>{{ routeNumber(activeRoute) }} / {{ cyclingRoutes.length }}</strong></div>
+        <div class="route-carousel-layout">
+          <div class="route-swipe-card" :class="{ 'is-dragging': swipeType === 'routes' }" :style="{ '--drag-x': swipeType === 'routes' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'routes')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
+            <img :src="cyclingRoutes[activeRoute].src" :alt="`${routeLabel(cyclingRoutes[activeRoute], activeRoute)} — ${routeDistance(cyclingRoutes[activeRoute])} km`" draggable="false">
+          </div>
+          <div class="route-carousel-copy">
+            <small>{{ t.hobbies.route }} {{ routeNumber(activeRoute) }}</small>
+            <h1>{{ routeLabel(cyclingRoutes[activeRoute], activeRoute) }}</h1>
+            <p>{{ routeDistance(cyclingRoutes[activeRoute]) }} km · {{ routeDuration(cyclingRoutes[activeRoute]) }}</p>
+            <div class="route-metrics">
+              <div><span>{{ t.hobbies.distance }}</span><strong>{{ routeDistance(cyclingRoutes[activeRoute]) }} km</strong></div>
+              <div><span>{{ t.hobbies.duration }}</span><strong>{{ routeDuration(cyclingRoutes[activeRoute]) }}</strong></div>
+              <div><span>{{ t.hobbies.speed }}</span><strong>≈ {{ routeSpeed(cyclingRoutes[activeRoute]) }} km/h</strong></div>
+            </div>
+            <small class="route-speed-note">{{ t.hobbies.speedNote }}</small>
+            <nav class="route-carousel-nav" :aria-label="t.hobbies.routes">
+              <button type="button" :aria-label="t.hobbies.previousRoute" @click="moveRoute(-1)"><ArrowLeft :size="22" aria-hidden="true" /></button>
+              <span>{{ routeNumber(activeRoute) }} / {{ cyclingRoutes.length }}</span>
+              <button type="button" :aria-label="t.hobbies.nextRoute" @click="moveRoute(1)"><ArrowRight :size="22" aria-hidden="true" /></button>
+            </nav>
+          </div>
         </div>
-        <div class="route-page-stats">
-          <div class="route-main-stat"><span>{{ t.hobbies.distance }}</span><strong>{{ routeDistance(cyclingRoutes[activeRoute]) }} <small>km</small></strong></div>
-          <div><span>{{ t.hobbies.duration }}</span><strong>{{ routeDuration(cyclingRoutes[activeRoute]) }}</strong></div>
-          <div><span>{{ t.hobbies.speed }}</span><strong>≈ {{ routeSpeed(cyclingRoutes[activeRoute]) }} km/h</strong></div>
-        </div>
-        <p class="route-speed-note">{{ t.hobbies.speedNote }}</p>
-        <figure class="route-source"><img :src="cyclingRoutes[activeRoute].src" :alt="`${routeLabel(cyclingRoutes[activeRoute], activeRoute)} — ${routeDistance(cyclingRoutes[activeRoute])} km`"><figcaption>{{ language === 'sk' ? 'Pôvodný záznam trasy' : 'Original route record' }}</figcaption></figure>
-        <nav class="route-page-nav" :aria-label="t.hobbies.routes">
-          <a v-if="activeRoute > 0" :href="`#route-${activeRoute}`" @click.prevent="openRoute(activeRoute - 1)"><ArrowLeft :size="18" aria-hidden="true" /> {{ t.hobbies.previousRoute }}</a>
-          <a v-if="activeRoute < cyclingRoutes.length - 1" :href="`#route-${activeRoute + 2}`" @click.prevent="openRoute(activeRoute + 1)">{{ t.hobbies.nextRoute }} <ArrowRight :size="18" aria-hidden="true" /></a>
-        </nav>
       </div>
     </main>
 
