@@ -29,6 +29,7 @@ const socialModal = ref(null)
 const scrollCueUp = ref(false)
 let scrollIntentAnchorY = 0
 let musicSwipeEndedAt = 0
+let filmSwipeEndedAt = 0
 const topicsGrid = ref(null)
 const topicScrollLeft = ref(0)
 const activeTopic = ref(0)
@@ -102,11 +103,11 @@ const content = {
     films: {
       title: 'Filmy a seriály',
       items: [
-        { title: 'Stávka na neistotu', year: '2015', type: 'FILM', color: '#7657ff', cover: '/photos/covers/big-short.jpg' },
-        { title: 'Hlúpa láska', year: '2011', type: 'FILM', color: '#ffb2d0', cover: '/photos/covers/crazy-stupid-love.jpg' },
-        { title: 'Teória veľkého tresku', year: '2007–2019', type: 'SERIÁL', color: '#e6ff42', cover: '/photos/covers/bbt.jpg' },
-        { title: 'Ako som spoznal vašu matku', year: '2005–2014', type: 'SERIÁL', color: '#67d9ff', cover: '/photos/covers/himym.jpg' },
-        { title: '10 vecí, ktoré na tebe neznášam', year: '1999', type: 'FILM', color: '#ff6b49', cover: '/photos/covers/10-things.jpg' },
+        { title: 'Stávka na neistotu', year: '2015', type: 'FILM', color: '#e9e4dc', cover: '/photos/covers/big-short.jpg', imdb: 'https://www.imdb.com/title/tt1596363/' },
+        { title: 'Hlúpa láska', year: '2011', type: 'FILM', color: '#243d40', cover: '/photos/covers/crazy-stupid-love.jpg', imdb: 'https://www.imdb.com/title/tt1570728/' },
+        { title: 'Teória veľkého tresku', year: '2007–2019', type: 'SERIÁL', color: '#303536', cover: '/photos/covers/bbt.jpg', imdb: 'https://www.imdb.com/title/tt0898266/' },
+        { title: 'Ako som spoznal vašu matku', year: '2005–2014', type: 'SERIÁL', color: '#f74f55', cover: '/photos/covers/himym.jpg', imdb: 'https://www.imdb.com/title/tt0460649/' },
+        { title: '10 vecí, ktoré na tebe neznášam', year: '1999', type: 'FILM', color: '#b9867d', cover: '/photos/covers/10-things.jpg', imdb: 'https://www.imdb.com/title/tt0147800/' },
       ],
     },
     hobbies: {
@@ -166,11 +167,11 @@ const content = {
     films: {
       title: 'Films & series',
       items: [
-        { title: 'The Big Short', year: '2015', type: 'FILM', color: '#7657ff', cover: '/photos/covers/big-short.jpg' },
-        { title: 'Crazy, Stupid, Love', year: '2011', type: 'FILM', color: '#ffb2d0', cover: '/photos/covers/crazy-stupid-love.jpg' },
-        { title: 'The Big Bang Theory', year: '2007–2019', type: 'SERIES', color: '#e6ff42', cover: '/photos/covers/bbt.jpg' },
-        { title: 'How I Met Your Mother', year: '2005–2014', type: 'SERIES', color: '#67d9ff', cover: '/photos/covers/himym.jpg' },
-        { title: '10 Things I Hate About You', year: '1999', type: 'FILM', color: '#ff6b49', cover: '/photos/covers/10-things.jpg' },
+        { title: 'The Big Short', year: '2015', type: 'FILM', color: '#e9e4dc', cover: '/photos/covers/big-short.jpg', imdb: 'https://www.imdb.com/title/tt1596363/' },
+        { title: 'Crazy, Stupid, Love', year: '2011', type: 'FILM', color: '#243d40', cover: '/photos/covers/crazy-stupid-love.jpg', imdb: 'https://www.imdb.com/title/tt1570728/' },
+        { title: 'The Big Bang Theory', year: '2007–2019', type: 'SERIES', color: '#303536', cover: '/photos/covers/bbt.jpg', imdb: 'https://www.imdb.com/title/tt0898266/' },
+        { title: 'How I Met Your Mother', year: '2005–2014', type: 'SERIES', color: '#f74f55', cover: '/photos/covers/himym.jpg', imdb: 'https://www.imdb.com/title/tt0460649/' },
+        { title: '10 Things I Hate About You', year: '1999', type: 'FILM', color: '#b9867d', cover: '/photos/covers/10-things.jpg', imdb: 'https://www.imdb.com/title/tt0147800/' },
       ],
     },
     hobbies: {
@@ -389,19 +390,19 @@ function photoPosition(index) {
 
 function startSwipe(event, type) {
   if (event.pointerType === 'mouse' && event.button !== 0) return
-  if (type !== 'music') event.preventDefault()
+  if (type !== 'music' && type !== 'films') event.preventDefault()
   window.getSelection()?.removeAllRanges()
   swipeStart.value = event.clientX
   swipeType.value = type
   swipePointer.value = event.pointerId
   dragX.value = 0
-  if (type !== 'music') event.currentTarget.setPointerCapture?.(event.pointerId)
+  if (type !== 'music' && type !== 'films') event.currentTarget.setPointerCapture?.(event.pointerId)
 }
 
 function updateSwipe(event) {
   if (swipeStart.value === null || event.pointerId !== swipePointer.value) return
   dragX.value = Math.max(-140, Math.min(140, event.clientX - swipeStart.value))
-  if (swipeType.value === 'music' && Math.abs(dragX.value) > 8 && !event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+  if ((swipeType.value === 'music' || swipeType.value === 'films') && Math.abs(dragX.value) > 8 && !event.currentTarget.hasPointerCapture?.(event.pointerId)) {
     event.currentTarget.setPointerCapture?.(event.pointerId)
   }
 }
@@ -423,6 +424,7 @@ function finishSwipe(event) {
 
   const direction = distance < 0 ? 1 : -1
   if (type === 'music') musicSwipeEndedAt = Date.now()
+  if (type === 'films') filmSwipeEndedAt = Date.now()
   if (type === 'photos') activePhoto.value = (activePhoto.value + direction + photos.length) % photos.length
   else if (type === 'routes') moveRoute(direction)
   else moveInterest(type, direction)
@@ -430,6 +432,10 @@ function finishSwipe(event) {
 
 function onMusicCardClick(event, index) {
   if (index !== activeMusic.value || Date.now() - musicSwipeEndedAt < 350) event.preventDefault()
+}
+
+function onFilmCardClick(event, index) {
+  if (index !== activeFilm.value || Date.now() - filmSwipeEndedAt < 350) event.preventDefault()
 }
 
 function moveInterest(type, direction) {
@@ -549,16 +555,16 @@ onUnmounted(() => {
         <div class="wrapped-heading"><h1>{{ t.films.title }}</h1></div>
         <div class="interest-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'films' }" :style="{ '--drag-x': swipeType === 'films' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'films')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
-            <div v-for="(item, index) in t.films.items" :key="index" class="interest-card film-interest-card" :class="{ 'is-active': index === activeFilm, 'is-near': (index - activeFilm + t.films.items.length) % t.films.items.length <= 2 }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeFilm + t.films.items.length) % t.films.items.length}` }">
+            <a v-for="(item, index) in t.films.items" :key="index" class="interest-card film-interest-card" :class="{ 'is-active': index === activeFilm, 'is-near': (index - activeFilm + t.films.items.length) % t.films.items.length <= 2 }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeFilm + t.films.items.length) % t.films.items.length}` }" :href="item.imdb" target="_blank" rel="noopener noreferrer" :tabindex="index === activeFilm ? 0 : -1" :aria-label="`${item.title}, IMDb`" draggable="false" @click="onFilmCardClick($event, index)">
               <span class="card-index">0{{ index + 1 }}</span>
               <img :src="item.cover" :alt="item.title" draggable="false" @error="$event.currentTarget.style.display = 'none'">
               <b>{{ item.type }}</b>
-            </div>
+            </a>
             <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in t.films.items" :key="index" :class="{ active: index === activeFilm }"></i></div>
           </div>
           <div class="interest-copy">
-            <div class="interest-title-slot"><h2 :key="activeFilm">{{ currentFilm.title }}</h2></div>
-            <div class="interest-meta-slot"><p :key="activeFilm">{{ currentFilm.year }}</p></div>
+            <div class="interest-title-slot"><a :key="activeFilm" class="film-copy-link" :href="currentFilm.imdb" target="_blank" rel="noopener noreferrer" :aria-label="`${currentFilm.title}, IMDb`"><h2>{{ currentFilm.title }}</h2></a></div>
+            <div class="interest-meta-slot"><a :key="activeFilm" class="film-copy-link" :href="currentFilm.imdb" target="_blank" rel="noopener noreferrer" :aria-label="`${currentFilm.title}, IMDb`"><p>{{ currentFilm.year }}</p></a></div>
             <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('films', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('films', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
           </div>
         </div>

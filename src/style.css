@@ -192,9 +192,9 @@ a { text-decoration: none; }
 .interest-card .card-index { position: absolute; z-index: 2; top: 20px; left: 22px; font-size: 43px; font-weight: 900; letter-spacing: -.08em; }
 .music-interest-card img,
 .film-interest-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.music-interest-card { cursor: pointer; }
-.music-interest-card:focus-visible, .music-copy-link:focus-visible { outline: 3px solid currentColor; outline-offset: 5px; }
-.music-copy-link { display: block; width: fit-content; max-width: 100%; color: inherit; }
+.music-interest-card, .film-interest-card { cursor: pointer; }
+.music-interest-card:focus-visible, .film-interest-card:focus-visible, .music-copy-link:focus-visible, .film-copy-link:focus-visible { outline: 3px solid currentColor; outline-offset: 5px; }
+.music-copy-link, .film-copy-link { display: block; width: fit-content; max-width: 100%; color: inherit; }
 .music-interest-card::after,
 .film-interest-card::after { position: absolute; inset: 0; content: ''; background: linear-gradient(180deg, #0008, transparent 28%, transparent 70%, #0009); pointer-events: none; }
 .film-interest-card b { position: absolute; z-index: 2; right: 20px; bottom: 18px; font: 800 12px ui-monospace, monospace; }
@@ -260,15 +260,11 @@ body.modal-open { overflow: hidden; }
 .social-modal a:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-md) var(--red); color: white; }
 .social-modal a:nth-child(even) { background: var(--red); box-shadow: var(--shadow-sm) var(--ink); }
 .social-modal a:nth-child(even):hover { box-shadow: var(--shadow-md) var(--ink); }
-.social-label { display: inline-flex; align-items: center; gap: 12px; min-width: 0; }
+.social-label { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 12px; }
 .social-name { font-weight: 850; white-space: nowrap; }
 .social-icon { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; background: #fff; border: 0; border-radius: 50%; overflow: hidden; }
 .social-icon img, .social-icon svg { display: block; width: 22px; height: 22px; }
-.social-value { min-width: 0; font: 700 12px ui-monospace, monospace; opacity: .9; overflow-wrap: anywhere; text-align: right; }
-@media (max-width: 540px) {
-  .social-modal a[href^="mailto:"] { flex-wrap: wrap; }
-  .social-modal a[href^="mailto:"] .social-value { flex-basis: 100%; padding-left: 52px; text-align: left; }
-}
+.social-value { min-width: 0; overflow: hidden; font: 700 12px ui-monospace, monospace; opacity: .9; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
 .modal-close { position: absolute; top: 15px; right: 18px; display: grid; width: 52px; height: 52px; place-items: center; color: white; background: var(--ink); border: 1px solid var(--ink); border-radius: 50%; box-shadow: var(--shadow-sm) var(--red); transition: transform 180ms ease, box-shadow 180ms ease; }
 .modal-close:hover { transform: translateY(3px); box-shadow: var(--shadow-sm) var(--red); }
 .modal-close:active { transform: translateY(5px); box-shadow: 1px 1px var(--red); }
