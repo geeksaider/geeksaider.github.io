@@ -234,6 +234,7 @@ a { text-decoration: none; }
 @media (max-width: 620px) {
   .container { width: calc(100% - 30px); }
   .topbar { height: 62px; grid-template-columns: 1fr 1fr; }
+  .topbar.inner-topbar { display: none; }
   .profile { min-height: auto; padding-block: 38px 105px; gap: 38px; }
   .profile h1 { font-size: clamp(82px, 27vw, 125px); }
   .meta-line { margin-top: 24px; font-size: 23px; }
@@ -259,12 +260,14 @@ a { text-decoration: none; }
   .topic-heading h2 { font-size: 49px; }
   .topic-grid { display: flex; width: calc(100% + 15px); padding: 4px 15px 12px 0; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .topic-card { min-width: min(82vw, 320px); min-height: 320px; border-radius: 25px; scroll-snap-align: start; }
-  .inner-page { padding-block: 30px 55px; }
-  .wrapped-heading { margin-top: 42px; }
-  .wrapped-heading h1 { font-size: 64px; }
+  .wrapped-page { min-height: 100svh; }
+  .inner-page { padding-top: max(14px, env(safe-area-inset-top)); padding-bottom: max(35px, env(safe-area-inset-bottom)); }
+  .back-button { min-width: 0; padding: 10px 16px; }
+  .wrapped-heading { margin-top: 18px; }
+  .wrapped-heading h1 { font-size: clamp(43px, 11vw, 56px); line-height: .9; }
   .music-layout { grid-template-columns: 1fr; gap: 34px; margin-top: 38px; }
-  .interest-layout { grid-template-columns: 1fr; gap: 34px; margin-top: 38px; }
-  .interest-stack { width: min(100%, 350px); }
+  .interest-layout { grid-template-columns: 1fr; gap: 24px; margin-top: 20px; }
+  .interest-stack { width: min(100%, 350px, max(220px, calc((100svh - 220px) * .78))); }
   .interest-copy h2 { font-size: 44px; }
   .card-controls { display: none; }
   .desktop-hint { display: none; }

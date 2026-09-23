@@ -65,7 +65,7 @@ const content = {
     socials: [{ label: 'Instagram', value: '@geeksaider', href: 'https://instagram.com/geeksaider' }, { label: 'Telegram', value: '@geeksaider', href: 'https://t.me/geeksaider' }, { label: 'E-mail', value: 'geeksaider@gmail.com', href: 'mailto:geeksaider@gmail.com' }],
     menu: {
       music: { index: '01', title: 'Môj hudobný vkus', stat: 'TOP 5', label: 'najhranejšie' },
-      films: { index: '02', title: 'Obľúbené filmy', stat: 'TOP 5', label: 'osobný výber' },
+      films: { index: '02', title: 'Filmy a seriály', stat: 'TOP 5', label: 'osobný výber' },
       hobbies: { index: '03', title: 'Hobby', stat: '04', label: 'hlavné záujmy' },
     },
     music: {
@@ -79,7 +79,7 @@ const content = {
       ],
     },
     films: {
-      kicker: 'môj výber', title: 'Obľúbené filmy', hint: 'potiahni alebo klikni', swipeHint: 'potiahni kartu',
+      kicker: 'môj výber', title: 'Filmy a seriály', hint: 'potiahni alebo klikni', swipeHint: 'potiahni kartu',
       items: [
         { title: 'Stávka na neistotu', year: '2015', type: 'FILM', color: '#7657ff', cover: '/photos/covers/big-short.jpg' },
         { title: 'Hlúpa láska', year: '2011', type: 'FILM', color: '#ffb2d0', cover: '/photos/covers/crazy-stupid-love.jpg' },
@@ -124,7 +124,7 @@ const content = {
     socials: [{ label: 'Instagram', value: '@geeksaider', href: 'https://instagram.com/geeksaider' }, { label: 'Telegram', value: '@geeksaider', href: 'https://t.me/geeksaider' }, { label: 'E-mail', value: 'geeksaider@gmail.com', href: 'mailto:geeksaider@gmail.com' }],
     menu: {
       music: { index: '01', title: 'My music taste', stat: 'TOP 5', label: 'most played' },
-      films: { index: '02', title: 'Favorite films', stat: 'TOP 5', label: 'personal selection' },
+      films: { index: '02', title: 'Films & series', stat: 'TOP 5', label: 'personal selection' },
       hobbies: { index: '03', title: 'Hobbies', stat: '04', label: 'main interests' },
     },
     music: {
@@ -138,7 +138,7 @@ const content = {
       ],
     },
     films: {
-      kicker: 'my selection', title: 'Favorite films', hint: 'swipe or click', swipeHint: 'swipe the card',
+      kicker: 'my selection', title: 'Films & series', hint: 'swipe or click', swipeHint: 'swipe the card',
       items: [
         { title: 'The Big Short', year: '2015', type: 'FILM', color: '#7657ff', cover: '/photos/covers/big-short.jpg' },
         { title: 'Crazy, Stupid, Love', year: '2011', type: 'FILM', color: '#ffb2d0', cover: '/photos/covers/crazy-stupid-love.jpg' },
@@ -335,7 +335,7 @@ onUnmounted(() => {
 
 <template>
   <div class="app">
-    <header class="topbar container">
+    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home' }">
       <button class="logo" aria-label="Home" @click="goHome">N<span>.</span></button>
       <div class="language-picker">
         <button :class="{ active: language === 'sk' }" @click="setLanguage('sk')">SK</button>
