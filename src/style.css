@@ -71,10 +71,10 @@ a { text-decoration: none; }
 .note-magnet { position: absolute; top: 12px; left: calc(50% - 8px); width: 16px; height: 16px; background: var(--violet); border: 2px solid var(--ink); border-radius: 50%; box-shadow: 1px 2px 0 #12131055; }
 .fact-note h3 { max-width: 100%; margin: 0; font-size: 17px; line-height: 1.12; letter-spacing: -.035em; }
 .fact-reveal { position: relative; max-width: 100%; padding: 0; color: var(--ink); background: none; border: 0; text-align: left; font-size: 22px; font-weight: 900; line-height: 1.12; letter-spacing: -.045em; overflow-wrap: anywhere; }
-.fact-reveal .fact-answer { display: block; transition: filter 280ms ease, color 280ms ease; }
-.fact-reveal .fact-answer.is-hidden { color: #1213103b; filter: blur(4px); }
-.fact-sparkles { position: absolute; inset: 0; color: transparent; background-image: radial-gradient(circle, #222 1.1px, transparent 1.5px), radial-gradient(circle, #fff 1px, transparent 1.6px); background-size: 6px 6px, 9px 9px; background-position: 0 0, 2px 2px; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: spoiler-dust 1.8s linear infinite; pointer-events: none; }
-.fact-reveal:hover .fact-sparkles { animation-duration: .9s; }
+.fact-reveal .fact-answer { display: block; opacity: 1; filter: blur(0); transform: scale(1); transform-origin: left center; transition: opacity 850ms ease, filter 850ms cubic-bezier(.22, 1, .36, 1), transform 850ms cubic-bezier(.22, 1, .36, 1); }
+.fact-reveal .fact-answer.is-hidden { opacity: .22; filter: blur(5px); transform: scale(.985); }
+.fact-sparkles { position: absolute; inset: 0; color: transparent; opacity: 1; filter: blur(0); background-image: radial-gradient(circle, #222 1.1px, transparent 1.5px), radial-gradient(circle, #fff 1px, transparent 1.6px); background-size: 6px 6px, 9px 9px; background-position: 0 0, 2px 2px; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: spoiler-dust 1.8s linear infinite; transition: opacity 850ms ease, filter 850ms cubic-bezier(.22, 1, .36, 1); pointer-events: none; }
+.fact-reveal.is-revealed .fact-sparkles { opacity: 0; filter: blur(7px); }
 .fact-reveal:focus-visible { outline: 3px solid var(--violet); outline-offset: 4px; }
 @keyframes spoiler-dust { to { background-position: 12px 6px, -7px 11px; } }
 

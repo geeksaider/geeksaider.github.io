@@ -410,7 +410,7 @@ onUnmounted(() => {
             <h3>{{ question[0] }}</h3>
             <button type="button" class="fact-reveal" :class="{ 'is-revealed': revealedFacts[index] }" :disabled="question[3] === null" :aria-label="`${question[0]} ${revealedFacts[index] ? question[question[3]] : language === 'sk' ? 'odkryť odpoveď' : 'reveal answer'}`" :aria-pressed="revealedFacts[index]" @click="revealedFacts[index] = true">
               <span class="fact-answer" :class="{ 'is-hidden': !revealedFacts[index] }">{{ question[question[3]] }}</span>
-              <span v-if="!revealedFacts[index]" class="fact-sparkles" :data-text="question[question[3]]" aria-hidden="true">{{ question[question[3]] }}</span>
+              <span class="fact-sparkles" aria-hidden="true">{{ question[question[3]] }}</span>
             </button>
           </div>
         </div>
