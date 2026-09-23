@@ -1,5 +1,9 @@
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, Clapperboard, CodeXml, ExternalLink, Eye, LockKeyhole, Mail, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
+
+const topicIcons = { music: Music2, films: Clapperboard, hobbies: Shapes }
+const hobbyIcons = [BriefcaseBusiness, CodeXml, Bike, Music2]
 
 const language = ref('sk')
 const view = ref('home')
@@ -43,13 +47,13 @@ const cyclingRoutes = [
 const content = {
   sk: {
     title: 'Nikita',
-    meta: 'Spravil som web namiesto normálneho bio.',
     explore: 'vybrať tému',
     scrollTop: 'späť na začiatok',
     contact: 'napísať mi',
     back: 'späť',
+    previous: 'predchádzajúca karta', next: 'ďalšia karta',
     dossier: {
-      label: 'záznam 001', title: 'Osobný spis', reveal: 'odkryť ďalší riadok', complete: 'spis odhalený', tap: 'odkryť', locked: 'zamknuté',
+      title: 'Osobný spis', reveal: 'odkryť',
       rows: [
         ['Meno', 'Nikita'],
         ['Vek', '20'],
@@ -60,16 +64,15 @@ const content = {
         ['Znamenie', 'Váhy'],
       ],
     },
-    socialTitle: 'nájdeme sa aj inde',
-    socialHint: 'vyber sociálnu sieť',
+    socialTitle: 'Kontakt',
     socials: [{ label: 'Instagram', value: '@geeksaider', href: 'https://instagram.com/geeksaider' }, { label: 'Telegram', value: '@geeksaider', href: 'https://t.me/geeksaider' }, { label: 'E-mail', value: 'geeksaider@gmail.com', href: 'mailto:geeksaider@gmail.com' }],
     menu: {
-      music: { index: '01', title: 'Môj hudobný vkus', stat: 'TOP 5', label: 'najhranejšie' },
-      films: { index: '02', title: 'Filmy a seriály', stat: 'TOP 5', label: 'osobný výber' },
-      hobbies: { index: '03', title: 'Hobby', stat: '04', label: 'hlavné záujmy' },
+      music: { title: 'Môj hudobný vkus' },
+      films: { title: 'Filmy a seriály' },
+      hobbies: { title: 'Hobby' },
     },
     music: {
-      kicker: 'moja hudba', title: 'Môj hudobný vkus', hint: 'potiahni alebo klikni', swipeHint: 'potiahni kartu',
+      title: 'Môj hudobný vkus', hint: 'potiahni alebo klikni', swipeHint: 'potiahni kartu',
       items: [
         { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg' },
         { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg' },
@@ -79,7 +82,7 @@ const content = {
       ],
     },
     films: {
-      kicker: 'môj výber', title: 'Filmy a seriály', hint: 'potiahni alebo klikni', swipeHint: 'potiahni kartu',
+      title: 'Filmy a seriály', hint: 'potiahni alebo klikni', swipeHint: 'potiahni kartu',
       items: [
         { title: 'Stávka na neistotu', year: '2015', type: 'FILM', color: '#7657ff', cover: '/photos/covers/big-short.jpg' },
         { title: 'Hlúpa láska', year: '2011', type: 'FILM', color: '#ffb2d0', cover: '/photos/covers/crazy-stupid-love.jpg' },
@@ -89,26 +92,24 @@ const content = {
       ],
     },
     hobbies: {
-      kicker: 'mimo profilu', title: 'Čomu sa venujem',
+      title: 'Čomu sa venujem',
       routes: 'Moje cyklotrasy', route: 'Cyklotrasa', openRoute: 'Podrobnosti',
       distance: 'vzdialenosť', duration: 'čas', speed: 'priemerná rýchlosť',
       speedNote: 'orientačne podľa vzdialenosti a času', swipeRoutes: 'potiahni pre ďalšiu trasu',
       previousRoute: 'predchádzajúca trasa', nextRoute: 'ďalšia trasa', closeRoute: 'zatvoriť podrobnosti',
       items: [
-        { number: '01', title: 'Práca', symbol: '▣', color: 'var(--acid)', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita v práci', note: 'rôzne skúsenosti', details: 'Pracoval som na viacerých pozíciách, od kuchára až po systémového analytika.' },
-        { number: '02', title: 'Programovanie', symbol: '</>', color: 'var(--pink)', photo: '/photos/programming.jpg', photoAlt: 'Kód na obrazovke notebooku', note: 'kód a produkty' },
-        { number: '03', title: 'Cyklistika', symbol: '◎', color: 'var(--violet)', photo: '/photos/hobby-cycling.jpg', photoAlt: 'Nikita s bicyklom', note: 'dlhé trasy' },
-        { number: '04', title: 'Voľný čas', symbol: '♪', color: 'var(--blue)', photo: '/photos/mirror.jpg', photoAlt: 'Nikita so slúchadlami v zrkadle', note: 'hudba a volejbal', details: '8 rokov som študoval hru na violončele. Hrám na gitare, kedysi som hral v kapele. Rád hrávam volejbal.' },
+        { title: 'Práca', color: 'var(--acid)', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita v práci', details: 'Pracoval som na viacerých pozíciách, od kuchára až po systémového analytika.' },
+        { title: 'Programovanie', color: 'var(--pink)', photo: '/photos/programming.jpg', photoAlt: 'Kód na obrazovke notebooku', details: 'Tvorím weby a digitálne produkty.' },
+        { title: 'Cyklistika', color: 'var(--violet)', photo: '/photos/hobby-cycling.jpg', photoAlt: 'Nikita s bicyklom', details: 'Moja najdlhšia uložená trasa má 95,4 km.' },
+        { title: 'Voľný čas', color: 'var(--blue)', photo: '/photos/mirror.jpg', photoAlt: 'Nikita so slúchadlami v zrkadle', details: '8 rokov som študoval hru na violončele. Hrám na gitare, kedysi som hral v kapele. Rád hrávam volejbal.' },
       ],
     },
-    footer: 'koniec profilu',
   },
   en: {
     title: 'Nikita',
-    meta: 'I built a website instead of writing a normal bio.',
-    explore: 'choose a topic', scrollTop: 'back to top', contact: 'message me', back: 'back',
+    explore: 'choose a topic', scrollTop: 'back to top', contact: 'message me', back: 'back', previous: 'previous card', next: 'next card',
     dossier: {
-      label: 'record 001', title: 'Personal file', reveal: 'reveal next line', complete: 'file revealed', tap: 'reveal', locked: 'locked',
+      title: 'Personal file', reveal: 'reveal',
       rows: [
         ['Name', 'Nikita'],
         ['Age', '20'],
@@ -119,16 +120,15 @@ const content = {
         ['Zodiac', 'Libra'],
       ],
     },
-    socialTitle: 'find me elsewhere',
-    socialHint: 'choose a social network',
+    socialTitle: 'Contact',
     socials: [{ label: 'Instagram', value: '@geeksaider', href: 'https://instagram.com/geeksaider' }, { label: 'Telegram', value: '@geeksaider', href: 'https://t.me/geeksaider' }, { label: 'E-mail', value: 'geeksaider@gmail.com', href: 'mailto:geeksaider@gmail.com' }],
     menu: {
-      music: { index: '01', title: 'My music taste', stat: 'TOP 5', label: 'most played' },
-      films: { index: '02', title: 'Films & series', stat: 'TOP 5', label: 'personal selection' },
-      hobbies: { index: '03', title: 'Hobbies', stat: '04', label: 'main interests' },
+      music: { title: 'My music taste' },
+      films: { title: 'Films & series' },
+      hobbies: { title: 'Hobbies' },
     },
     music: {
-      kicker: 'my music', title: 'My music taste', hint: 'swipe or click', swipeHint: 'swipe the card',
+      title: 'My music taste', hint: 'swipe or click', swipeHint: 'swipe the card',
       items: [
         { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg' },
         { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg' },
@@ -138,7 +138,7 @@ const content = {
       ],
     },
     films: {
-      kicker: 'my selection', title: 'Films & series', hint: 'swipe or click', swipeHint: 'swipe the card',
+      title: 'Films & series', hint: 'swipe or click', swipeHint: 'swipe the card',
       items: [
         { title: 'The Big Short', year: '2015', type: 'FILM', color: '#7657ff', cover: '/photos/covers/big-short.jpg' },
         { title: 'Crazy, Stupid, Love', year: '2011', type: 'FILM', color: '#ffb2d0', cover: '/photos/covers/crazy-stupid-love.jpg' },
@@ -148,19 +148,18 @@ const content = {
       ],
     },
     hobbies: {
-      kicker: 'beyond the profile', title: 'What I spend time on',
+      title: 'What I spend time on',
       routes: 'My cycling routes', route: 'Cycling route', openRoute: 'Details',
       distance: 'distance', duration: 'time', speed: 'average speed',
       speedNote: 'estimated from distance and time', swipeRoutes: 'swipe for the next route',
       previousRoute: 'previous route', nextRoute: 'next route', closeRoute: 'close route details',
       items: [
-        { number: '01', title: 'Work', symbol: '▣', color: 'var(--acid)', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita at work', note: 'different roles', details: 'I have worked in several roles, from cook to systems analyst.' },
-        { number: '02', title: 'Programming', symbol: '</>', color: 'var(--pink)', photo: '/photos/programming.jpg', photoAlt: 'Code on a laptop screen', note: 'code & products' },
-        { number: '03', title: 'Cycling', symbol: '◎', color: 'var(--violet)', photo: '/photos/hobby-cycling.jpg', photoAlt: 'Nikita with a bicycle', note: 'long rides' },
-        { number: '04', title: 'Free time', symbol: '♪', color: 'var(--blue)', photo: '/photos/mirror.jpg', photoAlt: 'Nikita wearing headphones in a mirror', note: 'music and volleyball', details: 'I studied cello for 8 years. I play guitar and used to play in a band. I also enjoy playing volleyball.' },
+        { title: 'Work', color: 'var(--acid)', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita at work', details: 'I have worked in several roles, from cook to systems analyst.' },
+        { title: 'Programming', color: 'var(--pink)', photo: '/photos/programming.jpg', photoAlt: 'Code on a laptop screen', details: 'I build websites and digital products.' },
+        { title: 'Cycling', color: 'var(--violet)', photo: '/photos/hobby-cycling.jpg', photoAlt: 'Nikita with a bicycle', details: 'My longest saved ride is 95.4 km.' },
+        { title: 'Free time', color: 'var(--blue)', photo: '/photos/mirror.jpg', photoAlt: 'Nikita wearing headphones in a mirror', details: 'I studied cello for 8 years. I play guitar and used to play in a band. I also enjoy playing volleyball.' },
       ],
     },
-    footer: 'end of profile',
   },
 }
 
@@ -169,6 +168,9 @@ const currentMusic = computed(() => t.value.music.items[activeMusic.value])
 const currentFilm = computed(() => t.value.films.items[activeFilm.value])
 const currentHobby = computed(() => t.value.hobbies.items[activeHobby.value])
 const currentRoute = computed(() => cyclingRoutes[activeRoute.value])
+const themeColor = computed(() => view.value === 'music' ? currentMusic.value.color : view.value === 'films' ? currentFilm.value.color : '#f4f1e8')
+
+watch(themeColor, (color) => document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color), { immediate: true })
 
 function formatRouteNumber(value) {
   return new Intl.NumberFormat(language.value === 'sk' ? 'sk-SK' : 'en-US', {
@@ -335,7 +337,7 @@ onUnmounted(() => {
 
 <template>
   <div class="app">
-    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home' }">
+    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home' }" :style="{ '--header-bg': themeColor }">
       <button class="logo" aria-label="Home" @click="goHome">N<span>.</span></button>
       <div class="language-picker">
         <button :class="{ active: language === 'sk' }" @click="setLanguage('sk')">SK</button>
@@ -348,12 +350,9 @@ onUnmounted(() => {
       <section class="profile container">
         <div class="profile-copy">
           <h1>{{ t.title }}</h1>
-          <p class="meta-line">{{ t.meta }}</p>
           <div class="profile-actions">
             <button class="contact-button" @click="contact">
-              <i class="message-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M20 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h9a4 4 0 0 1 4 4Z"/><path d="M8 10h.01M12 10h.01M16 10h.01"/></svg>
-              </i>
+              <i class="message-icon" aria-hidden="true"><MessageCircleMore :size="22" :stroke-width="2" /></i>
               <span>{{ t.contact }}</span>
             </button>
           </div>
@@ -366,48 +365,37 @@ onUnmounted(() => {
           <div class="photo-dots"><button v-for="(_, index) in photos" :key="index" :class="{ active: index === activePhoto }" :aria-label="`Photo ${index + 1}`" @pointerdown.stop @click.stop="activePhoto = index"></button></div>
         </div>
         <button class="scroll-cue" :class="{ 'is-up': atPageEnd }" :aria-label="atPageEnd ? t.scrollTop : t.explore" @click="scrollPage">
-          <span class="material-symbols-outlined" aria-hidden="true">{{ atPageEnd ? 'north' : 'south' }}</span>
+          <ArrowUp v-if="atPageEnd" :size="26" aria-hidden="true" />
+          <ArrowDown v-else :size="26" aria-hidden="true" />
         </button>
       </section>
 
       <section class="dossier container">
-        <div class="dossier-top">
-          <div><small>{{ t.dossier.label }}</small><h2>{{ t.dossier.title }}</h2></div>
-          <span>{{ String(revealedRows).padStart(2, '0') }} / 0{{ t.dossier.rows.length }}</span>
-        </div>
+        <div class="dossier-top"><h2>{{ t.dossier.title }}</h2></div>
         <div class="dossier-lines">
           <button
             v-for="(row, index) in t.dossier.rows"
             :key="row[0]"
             :class="{ revealed: index < revealedRows, next: index === revealedRows }"
+            :disabled="index !== revealedRows"
+            :aria-label="index === revealedRows ? `${t.dossier.reveal}: ${row[0]}` : row[0]"
             @click="revealRow(index)"
           >
-            <small>0{{ index + 1 }}</small><span>{{ row[0] }}</span><strong>{{ row[1] }}</strong>
-            <em v-if="index === revealedRows" class="reveal-hint"><i></i>{{ t.dossier.tap }}</em>
-            <em v-else-if="index > revealedRows" class="locked-hint">● {{ t.dossier.locked }}</em>
+            <span>{{ row[0] }}</span><strong :aria-hidden="index >= revealedRows">{{ row[1] }}</strong>
+            <Eye v-if="index === revealedRows" class="dossier-state-icon is-next" :size="18" aria-hidden="true" />
+            <LockKeyhole v-else-if="index > revealedRows" class="dossier-state-icon" :size="16" aria-hidden="true" />
           </button>
         </div>
-        <button class="reveal-button" :disabled="revealedRows === t.dossier.rows.length" @click="revealedRows++">
-          {{ revealedRows === t.dossier.rows.length ? t.dossier.complete : t.dossier.reveal }}
-          <span>{{ revealedRows === t.dossier.rows.length ? '✓' : '＋' }}</span>
-        </button>
       </section>
 
       <section id="topics" class="topics container">
-        <div class="topic-heading">
-          <span>01—03</span>
-          <h2>{{ t.explore }}</h2>
-        </div>
+        <div class="topic-heading"><h2>{{ t.explore }}</h2></div>
 
         <div class="topic-grid">
           <button v-for="name in ['music', 'films', 'hobbies']" :key="name" class="topic-card" :class="`topic-${name}`" @click="openView(name)">
-            <span class="topic-number">{{ t.menu[name].index }}</span>
-            <strong>{{ t.menu[name].stat }}</strong>
+            <ArrowUpRight class="topic-open-icon" :size="22" aria-hidden="true" />
+            <component :is="topicIcons[name]" class="topic-icon" :size="110" :stroke-width="1.5" aria-hidden="true" />
             <h3>{{ t.menu[name].title }}</h3>
-            <p>{{ t.menu[name].label }}</p>
-            <div v-if="name === 'music'" class="mini-bars"><i v-for="n in 11" :key="n" :style="{ height: `${20 + ((n * 17) % 66)}%` }"></i></div>
-            <div v-if="name === 'films'" class="mini-frame"><i></i><i></i><i></i></div>
-            <div v-if="name === 'hobbies'" class="mini-orbit"><i></i><i></i></div>
           </button>
         </div>
       </section>
@@ -415,22 +403,22 @@ onUnmounted(() => {
 
     <main v-else-if="view === 'music'" class="wrapped-page music-page" :style="{ '--active': currentMusic.color }">
       <div class="container inner-page">
-        <button class="back-button" @click="goHome">{{ t.back }}</button>
+        <button class="back-button" @click="goHome"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
         <div class="wrapped-heading"><h1>{{ t.music.title }}</h1></div>
         <div class="interest-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'music' }" :style="{ '--drag-x': swipeType === 'music' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'music')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
             <div v-for="(item, index) in t.music.items" :key="item.title" class="interest-card music-interest-card" :class="{ 'is-active': index === activeMusic }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeMusic + t.music.items.length) % t.music.items.length}` }">
-              <span class="card-index">0{{ index + 1 }}</span><img :src="item.cover" :alt="`${item.title} — ${item.artist}`" draggable="false" @error="$event.currentTarget.style.display = 'none'"><small>TOP TRACK</small>
+              <span class="card-index">0{{ index + 1 }}</span><img :src="item.cover" :alt="`${item.title} — ${item.artist}`" draggable="false" @error="$event.currentTarget.style.display = 'none'">
             </div>
           </div>
-          <div class="interest-copy"><small><span class="desktop-hint">{{ t.music.hint }}</span><span class="mobile-hint">{{ t.music.swipeHint }}</span></small><h2>{{ currentMusic.title }}</h2><p>{{ currentMusic.artist }}</p><div class="card-controls"><button @click="moveInterest('music', -1)">←</button><button @click="moveInterest('music', 1)">→</button></div></div>
+          <div class="interest-copy"><small><span class="desktop-hint">{{ t.music.hint }}</span><span class="mobile-hint">{{ t.music.swipeHint }}</span></small><h2>{{ currentMusic.title }}</h2><p>{{ currentMusic.artist }}</p><div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('music', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('music', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div></div>
         </div>
       </div>
     </main>
 
     <main v-else-if="view === 'films'" class="wrapped-page films-page" :style="{ '--active': currentFilm.color }">
       <div class="container inner-page">
-        <button class="back-button" @click="goHome">{{ t.back }}</button>
+        <button class="back-button" @click="goHome"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
         <div class="wrapped-heading"><h1>{{ t.films.title }}</h1></div>
         <div class="interest-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'films' }" :style="{ '--drag-x': swipeType === 'films' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'films')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
@@ -440,47 +428,43 @@ onUnmounted(() => {
               <b>{{ item.type }}</b>
             </div>
           </div>
-          <div class="interest-copy"><small><span class="desktop-hint">{{ t.films.hint }}</span><span class="mobile-hint">{{ t.films.swipeHint }}</span></small><h2>{{ currentFilm.title }}</h2><p>{{ currentFilm.year }}</p><div class="card-controls"><button @click="moveInterest('films', -1)">←</button><button @click="moveInterest('films', 1)">→</button></div></div>
+          <div class="interest-copy"><small><span class="desktop-hint">{{ t.films.hint }}</span><span class="mobile-hint">{{ t.films.swipeHint }}</span></small><h2>{{ currentFilm.title }}</h2><p>{{ currentFilm.year }}</p><div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('films', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('films', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div></div>
         </div>
       </div>
     </main>
 
     <main v-else class="wrapped-page hobbies-page">
       <div class="container inner-page">
-        <button class="back-button" @click="goHome">{{ t.back }}</button>
+        <button class="back-button" @click="goHome"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
         <div class="wrapped-heading"><h1>{{ t.hobbies.title }}</h1></div>
         <div class="interest-layout hobbies-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'hobbies' }" :style="{ '--drag-x': swipeType === 'hobbies' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'hobbies')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
             <article
               v-for="(item, index) in t.hobbies.items"
-              :key="item.number"
+              :key="item.title"
               class="interest-card hobby-interest-card"
               :class="{ 'is-active': index === activeHobby, 'is-light': /acid|pink|blue/.test(item.color) }"
               :style="{ '--card-color': item.color, '--card-offset': `${(index - activeHobby + t.hobbies.items.length) % t.hobbies.items.length}` }"
             >
               <img v-if="item.photo && index === activeHobby" class="hobby-photo" :class="{ 'photo-inverted': item.photo === '/photos/mirror.jpg' }" :src="item.photo" :alt="item.photoAlt" loading="lazy" draggable="false">
-              <small>{{ item.number }}</small>
-              <span>{{ item.symbol }}</span>
+              <component :is="hobbyIcons[index]" class="hobby-symbol" :size="112" :stroke-width="1.5" aria-hidden="true" />
               <h2>{{ item.title }}</h2>
-              <em v-if="item.note">{{ item.note }}</em>
             </article>
           </div>
           <div class="interest-copy">
-            <small>{{ t.hobbies.kicker }}</small>
             <h2>{{ currentHobby.title }}</h2>
-            <p>{{ currentHobby.note }}</p>
             <p v-if="currentHobby.details" class="hobby-details">{{ currentHobby.details }}</p>
-            <div class="card-controls"><button @click="moveInterest('hobbies', -1)">←</button><button @click="moveInterest('hobbies', 1)">→</button></div>
+            <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
           </div>
         </div>
         <section v-if="activeHobby === 2" class="cycling-routes" :aria-label="t.hobbies.routes">
-          <div class="cycling-routes-heading"><h3>{{ t.hobbies.routes }}</h3><span>{{ cyclingRoutes.length }}</span></div>
+          <div class="cycling-routes-heading"><h3>{{ t.hobbies.routes }}</h3></div>
           <div class="cycling-routes-list">
             <button v-for="(route, index) in cyclingRoutes" :key="route.src" type="button" class="cycling-route-card" :aria-label="`${t.hobbies.openRoute}: ${t.hobbies.route} ${routeNumber(index)}, ${routeDistance(route)} km`" @click="openRoute(index, $event)">
-              <span class="route-card-top"><span>{{ t.hobbies.route }} / {{ routeNumber(index) }}</span><span>↗</span></span>
+              <span class="route-card-top">{{ t.hobbies.route }} {{ routeNumber(index) }}</span>
               <strong>{{ routeDistance(route) }} <small>km</small></strong>
               <span class="route-card-meta">{{ routeDuration(route) }} <span>·</span> ≈ {{ routeSpeed(route) }} km/h</span>
-              <span class="route-card-action">{{ t.hobbies.openRoute }} <span>→</span></span>
+              <span class="route-card-action">{{ t.hobbies.openRoute }} <ArrowRight :size="17" aria-hidden="true" /></span>
             </button>
           </div>
         </section>
@@ -489,18 +473,17 @@ onUnmounted(() => {
 
     <div v-if="contactOpen" class="modal-backdrop" @click.self="contactOpen = false">
       <section class="social-modal" role="dialog" aria-modal="true" :aria-label="t.socialTitle">
-        <button class="modal-close" :aria-label="t.back" @click="contactOpen = false">×</button>
-        <small>{{ t.socialHint }}</small><h2>{{ t.socialTitle }}</h2>
-        <a v-for="social in t.socials" :key="social.label" :href="social.href" :target="social.href.startsWith('http') ? '_blank' : undefined" :rel="social.href.startsWith('http') ? 'noopener noreferrer' : undefined">{{ social.label }} <span>{{ social.value }} ↗</span></a>
+        <button class="modal-close" :aria-label="t.back" @click="contactOpen = false"><X :size="20" aria-hidden="true" /></button>
+        <h2>{{ t.socialTitle }}</h2>
+        <a v-for="social in t.socials" :key="social.label" :href="social.href" :target="social.href.startsWith('http') ? '_blank' : undefined" :rel="social.href.startsWith('http') ? 'noopener noreferrer' : undefined">{{ social.label }} <span>{{ social.value }} <ExternalLink v-if="social.href.startsWith('http')" :size="14" aria-hidden="true" /><Mail v-else :size="14" aria-hidden="true" /></span></a>
       </section>
     </div>
 
     <div v-if="routeOpen" class="modal-backdrop route-modal-backdrop" @click.self="closeRoute">
       <section ref="routeDialog" class="route-dialog" role="dialog" aria-modal="true" :aria-label="`${t.hobbies.route} ${routeNumber(activeRoute)}`" tabindex="-1" @keydown.esc="closeRoute" @keydown.left="moveInterest('routes', -1)" @keydown.right="moveInterest('routes', 1)">
-        <button type="button" class="modal-close" :aria-label="t.hobbies.closeRoute" @click="closeRoute">×</button>
+        <button type="button" class="modal-close" :aria-label="t.hobbies.closeRoute" @click="closeRoute"><X :size="20" aria-hidden="true" /></button>
         <div class="route-dialog-heading"><small>{{ t.hobbies.routes }}</small><span>{{ routeNumber(activeRoute) }} / {{ cyclingRoutes.length }}</span></div>
         <div class="route-swipe-surface" :class="{ 'is-dragging': swipeType === 'routes' }" :style="{ '--drag-x': swipeType === 'routes' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'routes')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
-          <span class="route-swipe-index">{{ routeNumber(activeRoute) }}</span>
           <h2>{{ t.hobbies.route }}</h2>
           <div class="route-detail-stats">
             <div><small>{{ t.hobbies.distance }}</small><strong>{{ routeDistance(currentRoute) }} <span>km</span></strong></div>
@@ -510,9 +493,9 @@ onUnmounted(() => {
           <p>{{ t.hobbies.speedNote }}</p>
         </div>
         <div class="route-dialog-footer">
-          <button type="button" class="route-nav-button" :aria-label="t.hobbies.previousRoute" @click="moveInterest('routes', -1)">←</button>
+          <button type="button" class="route-nav-button" :aria-label="t.hobbies.previousRoute" @click="moveInterest('routes', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button>
           <span>{{ t.hobbies.swipeRoutes }}</span>
-          <button type="button" class="route-nav-button" :aria-label="t.hobbies.nextRoute" @click="moveInterest('routes', 1)">→</button>
+          <button type="button" class="route-nav-button" :aria-label="t.hobbies.nextRoute" @click="moveInterest('routes', 1)"><ArrowRight :size="21" aria-hidden="true" /></button>
         </div>
       </section>
     </div>
