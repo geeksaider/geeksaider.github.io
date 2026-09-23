@@ -58,20 +58,23 @@ a { text-decoration: none; }
 .photo-dots button { width: 7px; height: 7px; padding: 0; background: #b5b4ad; border: 0; border-radius: 50%; transition: width 180ms ease, background 180ms ease; }
 .photo-dots button.active { width: 24px; background: var(--ink); border-radius: 99px; }
 
-.dossier { padding-block: 18px 32px; }
-.dossier-top { padding: 18px 22px; color: var(--ink); background: var(--acid); border: 1px solid var(--ink); border-bottom: 0; border-radius: 24px 24px 0 0; }
-.dossier-top h2 { margin: 0; font-size: clamp(27px, 3.2vw, 36px); line-height: 1; letter-spacing: -0.055em; }
-.dossier-lines { overflow: hidden; background: #fffdf6; border: 1px solid var(--ink); border-radius: 0 0 24px 24px; }
-.dossier-lines > button { position: relative; display: grid; width: 100%; min-height: 48px; grid-template-columns: minmax(115px, 0.45fr) minmax(0, 1.55fr) 20px; align-items: center; gap: 12px; padding: 8px 20px; text-align: left; background: transparent; border: 0; border-bottom: 1px solid var(--line); }
-.dossier-lines > button:last-child { border-bottom: 0; }
-.dossier-lines > button:disabled { color: inherit; cursor: default; opacity: 1; }
-.dossier-lines > button.next:focus-visible { outline: 3px solid var(--violet); outline-offset: -3px; }
-.dossier-lines span { font: 800 10px ui-monospace, monospace; letter-spacing: 0.04em; text-transform: uppercase; }
-.dossier-lines strong { filter: blur(7px); opacity: 0.44; font-size: clamp(13px, 1.6vw, 16px); line-height: 1.25; transition: filter 350ms ease, opacity 350ms ease; user-select: none; }
-.dossier-lines > button.revealed strong { filter: blur(0); opacity: 1; user-select: auto; }
-.dossier-state-icon { color: #85877f; }
-.dossier-state-icon.is-next { color: var(--violet); }
-.dossier-lines > button.next { background: #eeebff; }
+.facts { padding-block: 115px 30px; }
+.facts-folder { position: relative; background: #fffdf7; border: 2px solid var(--ink); border-radius: 0 30px 30px 30px; box-shadow: 7px 7px var(--ink); }
+.facts-heading { position: absolute; bottom: calc(100% - 1px); left: -2px; display: flex; width: min(34%, 340px); min-height: 112px; align-items: center; padding: 13px 28px; background: #fffdf7; border: 2px solid var(--ink); border-bottom: 0; border-radius: 54px 68px 0 0; }
+.facts-heading::after { position: absolute; right: 0; bottom: -2px; left: 0; height: 4px; content: ''; background: #fffdf7; }
+.facts-heading h2 { position: relative; z-index: 1; margin: 0; font-size: clamp(38px, 4vw, 50px); line-height: .85; letter-spacing: -.075em; }
+.facts-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fact-row { display: grid; min-height: 72px; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+.fact-row:nth-child(odd) { border-right: 1px solid var(--line); }
+.fact-row:nth-last-child(-n+2) { border-bottom: 0; }
+.fact-row h3 { margin: 0; font-size: 15px; line-height: 1.2; letter-spacing: -.025em; }
+.fact-reveal { position: relative; min-width: 118px; padding: 10px 12px; overflow: hidden; color: var(--ink); background: var(--acid); border: 1px solid var(--ink); border-radius: 11px; font-size: 12px; font-weight: 850; white-space: nowrap; }
+.fact-reveal span { position: relative; z-index: 1; display: block; filter: blur(5px); opacity: .7; transition: filter 350ms ease, opacity 350ms ease; user-select: none; }
+.fact-reveal::after { position: absolute; inset: 0; content: ''; background: conic-gradient(#121310ae 0 25%, transparent 0 50%, #7657ffad 0 75%, transparent 0), conic-gradient(transparent 0 25%, #12131070 0 50%, transparent 0 75%, #7657ff80 0), #f4f1e8b8; background-size: 8px 8px, 11px 11px, auto; backdrop-filter: blur(3px); animation: spoiler-shimmer 1.1s steps(4) infinite; opacity: 1; transition: opacity 450ms ease; pointer-events: none; }
+.fact-reveal.is-revealed span { filter: blur(0); opacity: 1; user-select: auto; }
+.fact-reveal.is-revealed::after { opacity: 0; }
+.fact-reveal:focus-visible { outline: 3px solid var(--violet); outline-offset: 2px; }
+@keyframes spoiler-shimmer { to { background-position: 21px 14px, -18px 18px, 0 0; } }
 
 .topics { padding-block: clamp(65px, 8vw, 105px); }
 .topic-heading { margin-bottom: 36px; }
@@ -114,7 +117,6 @@ a { text-decoration: none; }
 .interest-title-slot > .is-active, .interest-meta-slot > .is-active { visibility: visible; }
 .interest-copy h2 { max-width: 650px; margin: 17px 0 10px; font-size: clamp(40px, 5vw, 76px); line-height: .92; letter-spacing: -.07em; overflow-wrap: break-word; }
 .interest-copy p { margin: 0; font-size: 18px; font-weight: 750; }
-.interest-copy > small { font: 800 9px ui-monospace, monospace; text-transform: uppercase; }
 .hobbies-page .interest-copy h2 { margin-top: 0; }
 .card-controls { display: flex; gap: 10px; margin-top: 38px; }
 .card-controls button { display: grid; width: 52px; height: 52px; place-items: center; background: transparent; border: 1px solid; border-radius: 50%; font-size: 21px; }
@@ -208,12 +210,16 @@ a { text-decoration: none; }
   .scroll-cue { right: 15px; bottom: max(15px, env(safe-area-inset-bottom, 0px)); }
   .photo-carousel { width: calc(100% - 32px); max-width: 355px; justify-self: center; }
   .photo-card { border-radius: 27px; box-shadow: 7px 7px var(--ink); }
-  .dossier { padding-block: 12px 24px; }
-  .dossier-top { padding: 13px 15px; border-radius: 20px 20px 0 0; }
-  .dossier-lines { border-radius: 0 0 20px 20px; }
-  .dossier-lines > button { grid-template-columns: minmax(72px, 0.6fr) minmax(0, 1.4fr) 16px; gap: 7px; padding: 9px 11px; }
-  .dossier-lines span { font-size: 9px; }
-  .dossier-lines strong { font-size: 12px; }
+  .facts { padding-block: 93px 24px; }
+  .facts-folder { border-radius: 0 24px 24px 24px; }
+  .facts-heading { width: 52%; min-height: 90px; padding: 10px 18px; border-radius: 42px 52px 0 0; }
+  .facts-heading h2 { font-size: 40px; }
+  .facts-grid { grid-template-columns: 1fr; }
+  .fact-row { min-height: 61px; padding: 10px 14px; }
+  .fact-row:nth-child(odd) { border-right: 0; }
+  .fact-row:nth-last-child(2) { border-bottom: 1px solid var(--line); }
+  .fact-row h3 { font-size: 13px; }
+  .fact-reveal { min-width: 92px; padding: 8px 7px; font-size: 11px; }
   .topics { padding-block: 62px; }
   .topic-heading h2 { font-size: 49px; }
   .topic-grid { display: flex; width: calc(100% + 15px); padding: 4px 15px 12px 0; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
@@ -229,7 +235,6 @@ a { text-decoration: none; }
   .interest-card:not(.is-active) { transform: translateY(calc(var(--card-offset) * 6px)) scale(calc(1 - var(--card-offset) * .045)) rotate(calc(var(--card-offset) * 2deg)); }
   .interest-copy h2 { font-size: 44px; }
   .card-controls { display: none; }
-  .desktop-hint { display: none; }
   .album-card { width: min(100%, 390px); }
   .track-info h2 { font-size: 42px; }
   .rank-picker { justify-content: space-between; }

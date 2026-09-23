@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, ChevronDown, Clapperboard, CodeXml, ExternalLink, Eye, LockKeyhole, Mail, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, ChevronDown, Clapperboard, CodeXml, ExternalLink, Mail, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
 
 const topicIcons = { music: Music2, films: Clapperboard, hobbies: Shapes }
 const hobbyIcons = [BriefcaseBusiness, CodeXml, Bike, Music2]
@@ -11,7 +11,7 @@ const activeMusic = ref(0)
 const activeFilm = ref(0)
 const activePhoto = ref(0)
 const activeHobby = ref(0)
-const revealedRows = ref(0)
+const revealedFacts = ref(Array(10).fill(false))
 const swipeStart = ref(null)
 const swipeType = ref(null)
 const swipePointer = ref(null)
@@ -48,16 +48,19 @@ const content = {
     contact: 'napísať mi',
     back: 'späť',
     previous: 'predchádzajúca karta', next: 'ďalšia karta',
-    dossier: {
-      title: 'Osobný spis', reveal: 'odkryť',
-      rows: [
-        ['Meno', 'Nikita'],
-        ['Vek', '20'],
-        ['Práca', 'áno'],
-        ['Štúdium', 'Finančnú univerzitu som skončil, teraz MTF STU / PIAR'],
-        ['Fajčenie', 'bohužiaľ áno'],
-        ['Výška', '190 cm'],
-        ['Znamenie', 'Váhy'],
+    facts: {
+      title: 'Fun Facts',
+      questions: [
+        ['Čierna alebo biela?', 'Čierna', 'Biela', 1],
+        ['Hory alebo more?', 'Hory', 'More', 1],
+        ['Káva alebo čaj?', 'Káva', 'Čaj', 2],
+        ['Ráno alebo noc?', 'Ráno', 'Noc', 1],
+        ['Mesto alebo príroda?', 'Mesto', 'Príroda', 2],
+        ['Film alebo seriál?', 'Film', 'Seriál', 2],
+        ['Mačky alebo psy?', 'Mačky', 'Psy', 2],
+        ['Plán alebo spontánnosť?', 'Plán', 'Spontánnosť', 1],
+        ['Správy alebo hovory?', 'Správy', 'Hovory', 1],
+        ['Leto alebo zima?', 'Leto', 'Zima', 1],
       ],
     },
     socialTitle: 'Kontakt',
@@ -68,7 +71,7 @@ const content = {
       hobbies: { title: 'Hobby' },
     },
     music: {
-      title: 'Môj hudobný vkus', hint: 'potiahni alebo klikni',
+      title: 'Môj hudobný vkus',
       items: [
         { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg' },
         { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg' },
@@ -78,7 +81,7 @@ const content = {
       ],
     },
     films: {
-      title: 'Filmy a seriály', hint: 'potiahni alebo klikni',
+      title: 'Filmy a seriály',
       items: [
         { title: 'Stávka na neistotu', year: '2015', type: 'FILM', color: '#7657ff', cover: '/photos/covers/big-short.jpg' },
         { title: 'Hlúpa láska', year: '2011', type: 'FILM', color: '#ffb2d0', cover: '/photos/covers/crazy-stupid-love.jpg' },
@@ -104,16 +107,19 @@ const content = {
   en: {
     title: 'Nikita',
     explore: 'choose a topic', scrollTop: 'back to top', contact: 'message me', back: 'back', previous: 'previous card', next: 'next card',
-    dossier: {
-      title: 'Personal file', reveal: 'reveal',
-      rows: [
-        ['Name', 'Nikita'],
-        ['Age', '20'],
-        ['Work', 'yes'],
-        ['Studies', 'Finished Financial University, now MTF STU / PIAR'],
-        ['Smoking', 'unfortunately, yes'],
-        ['Height', '190 cm'],
-        ['Zodiac', 'Libra'],
+    facts: {
+      title: 'Fun Facts',
+      questions: [
+        ['Black or white?', 'Black', 'White', 1],
+        ['Mountains or sea?', 'Mountains', 'Sea', 1],
+        ['Coffee or tea?', 'Coffee', 'Tea', 2],
+        ['Morning or night?', 'Morning', 'Night', 1],
+        ['City or nature?', 'City', 'Nature', 2],
+        ['Film or series?', 'Film', 'Series', 2],
+        ['Cats or dogs?', 'Cats', 'Dogs', 2],
+        ['Plans or spontaneity?', 'Plans', 'Spontaneity', 1],
+        ['Texts or calls?', 'Texts', 'Calls', 1],
+        ['Summer or winter?', 'Summer', 'Winter', 1],
       ],
     },
     socialTitle: 'Contact',
@@ -124,7 +130,7 @@ const content = {
       hobbies: { title: 'Hobbies' },
     },
     music: {
-      title: 'My music taste', hint: 'swipe or click',
+      title: 'My music taste',
       items: [
         { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg' },
         { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg' },
@@ -134,7 +140,7 @@ const content = {
       ],
     },
     films: {
-      title: 'Films & series', hint: 'swipe or click',
+      title: 'Films & series',
       items: [
         { title: 'The Big Short', year: '2015', type: 'FILM', color: '#7657ff', cover: '/photos/covers/big-short.jpg' },
         { title: 'Crazy, Stupid, Love', year: '2011', type: 'FILM', color: '#ffb2d0', cover: '/photos/covers/crazy-stupid-love.jpg' },
@@ -245,10 +251,6 @@ function moveFilm(direction) {
   activeFilm.value = (activeFilm.value + direction + length) % length
 }
 
-function revealRow(index) {
-  if (index === revealedRows.value) revealedRows.value += 1
-}
-
 function photoPosition(index) {
   if (index === activePhoto.value) return 'active'
   const difference = (index - activePhoto.value + photos.length) % photos.length
@@ -346,21 +348,17 @@ onUnmounted(() => {
         </button>
       </section>
 
-      <section class="dossier container">
-        <div class="dossier-top"><h2>{{ t.dossier.title }}</h2></div>
-        <div class="dossier-lines">
-          <button
-            v-for="(row, index) in t.dossier.rows"
-            :key="row[0]"
-            :class="{ revealed: index < revealedRows, next: index === revealedRows }"
-            :disabled="index !== revealedRows"
-            :aria-label="index === revealedRows ? `${t.dossier.reveal}: ${row[0]}` : row[0]"
-            @click="revealRow(index)"
-          >
-            <span>{{ row[0] }}</span><strong :aria-hidden="index >= revealedRows">{{ row[1] }}</strong>
-            <Eye v-if="index === revealedRows" class="dossier-state-icon is-next" :size="18" aria-hidden="true" />
-            <LockKeyhole v-else-if="index > revealedRows" class="dossier-state-icon" :size="16" aria-hidden="true" />
-          </button>
+      <section class="facts container" :aria-label="t.facts.title">
+        <div class="facts-folder">
+          <div class="facts-heading"><h2>Fun<br>Facts</h2></div>
+          <div class="facts-grid">
+            <div v-for="(question, index) in t.facts.questions" :key="index" class="fact-row">
+              <h3>{{ question[0] }}</h3>
+              <button type="button" class="fact-reveal" :class="{ 'is-revealed': revealedFacts[index] }" :disabled="question[3] === null" :aria-label="`${question[0]} ${revealedFacts[index] ? question[question[3]] : language === 'sk' ? 'odkryť odpoveď' : 'reveal answer'}`" :aria-pressed="revealedFacts[index]" @click="revealedFacts[index] = true">
+                <span>{{ question[3] === null ? '?' : question[question[3]] }}</span>
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -387,7 +385,6 @@ onUnmounted(() => {
             </div>
           </div>
           <div class="interest-copy">
-            <small class="desktop-hint">{{ t.music.hint }}</small>
             <div class="interest-title-slot"><h2 v-for="(item, index) in t.music.items" :key="item.title" :class="{ 'is-active': index === activeMusic }" :aria-hidden="index !== activeMusic">{{ item.title }}</h2></div>
             <div class="interest-meta-slot"><p v-for="(item, index) in t.music.items" :key="item.title" :class="{ 'is-active': index === activeMusic }" :aria-hidden="index !== activeMusic">{{ item.artist }}</p></div>
             <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('music', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('music', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
@@ -408,7 +405,6 @@ onUnmounted(() => {
             </div>
           </div>
           <div class="interest-copy">
-            <small class="desktop-hint">{{ t.films.hint }}</small>
             <div class="interest-title-slot"><h2 v-for="(item, index) in t.films.items" :key="item.title" :class="{ 'is-active': index === activeFilm }" :aria-hidden="index !== activeFilm">{{ item.title }}</h2></div>
             <div class="interest-meta-slot"><p v-for="(item, index) in t.films.items" :key="item.title" :class="{ 'is-active': index === activeFilm }" :aria-hidden="index !== activeFilm">{{ item.year }}</p></div>
             <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('films', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('films', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
