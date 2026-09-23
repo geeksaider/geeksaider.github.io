@@ -1,9 +1,16 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watchEffect } from 'vue'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, Clapperboard, CodeXml, ExternalLink, Mail, Map, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
+import { ArrowDown, ArrowLeft, ArrowLeftRight, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, Clapperboard, CodeXml, Map, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
 
 const topicIcons = { music: Music2, films: Clapperboard, hobbies: Shapes }
 const hobbyIcons = [BriefcaseBusiness, CodeXml, Bike, Music2]
+const brandIcons = {
+  instagram: { color: '#FF0069', slug: 'instagram' },
+  telegram: { color: '#26A5E4', slug: 'telegram' },
+  discord: { color: '#5865F2', slug: 'discord' },
+  github: { color: '#181717', slug: 'github' },
+  mail: { color: '#d92d27', slug: null },
+}
 
 const language = ref('sk')
 const view = ref('home')
@@ -18,6 +25,7 @@ const swipeType = ref(null)
 const swipePointer = ref(null)
 const dragX = ref(0)
 const contactOpen = ref(false)
+const socialModal = ref(null)
 const scrollCueUp = ref(false)
 let scrollIntentAnchorY = 0
 const topicsGrid = ref(null)
@@ -27,28 +35,25 @@ const scrollPositions = { home: 0, hobbies: 0, music: 0, films: 0, routes: 0 }
 
 const photos = [
   { src: '/photos/cycling-stats.jpg', tone: 'photo-one', alt: 'Nikita v meste' },
-  { src: '/photos/camera.jpg', tone: 'photo-two', alt: 'Nikita so slúchadlami' },
-  { src: '/photos/mirror.jpg', tone: 'photo-three', alt: 'Nikita v zrkadle' },
-  { src: '/photos/water.jpg', tone: 'photo-four', alt: 'Nikita pri graffiti' },
-  { src: '/photos/hobby-cycling.jpg', tone: 'photo-five', alt: 'Nikita pri bicykli' },
+  { src: '/photos/water.jpg', tone: 'photo-two', alt: 'Nikita pri graffiti' },
+  { src: '/photos/night-stick.jpg', tone: 'photo-three', alt: 'Nikita v noci v lese' },
 ]
 
 const cyclingRoutes = [
-  { src: '/photos/routes/IMG_8948.JPG', distanceMi: 59.3, durationMinutes: 317 },
-  { src: '/photos/routes/IMG_8943.JPG', distanceMi: 57.4, durationMinutes: 286 },
-  { src: '/photos/routes/IMG_8949.JPG', distanceMi: 56.95, durationMinutes: 334 },
-  { src: '/photos/routes/IMG_8950.JPG', distanceMi: 45.8, durationMinutes: 396 },
-  { src: '/photos/routes/IMG_8944.JPG', distanceMi: 40.5, durationMinutes: 202, places: { sk: 'Trnava ↔ Bratislava', en: 'Trnava ↔ Bratislava' } },
-  { src: '/photos/routes/IMG_8945.PNG', distanceMi: 38.9, durationMinutes: 265 },
-  { src: '/photos/routes/IMG_8953.JPG', distanceMi: 37.11, durationMinutes: 437, places: { sk: 'Moskva ↔ Chimki', en: 'Moscow ↔ Khimki' } },
-  { src: '/photos/routes/IMG_8951.JPG', distanceMi: 29.54, durationMinutes: 195 },
-  { src: '/photos/routes/IMG_8946.PNG', distanceMi: 18, durationMinutes: 104 },
-  { src: '/photos/routes/IMG_8952.JPG', distanceMi: 11.15, durationMinutes: 96 },
+  { src: '/photos/routes/IMG_8948.JPG', distanceMi: 59.3, durationMinutes: 317, roundTrip: true, places: { sk: ['Zvolen', 'Hrinová'], en: ['Zvolen', 'Hrinová'] } },
+  { src: '/photos/routes/IMG_8943.JPG', distanceMi: 57.4, durationMinutes: 286, places: { sk: 'okres Trnava loop', en: 'Trnava district loop' } },
+  { src: '/photos/routes/IMG_8950.JPG', distanceMi: 45.8, durationMinutes: 396, roundTrip: true, places: { sk: ['Zvolen', 'Banská Štiavnica'], en: ['Zvolen', 'Banská Štiavnica'] } },
+  { src: '/photos/routes/IMG_8974.JPG', distanceMi: 40.5, durationMinutes: 202, roundTrip: true, places: { sk: ['Zvolen', 'Žiar nad Hronom'], en: ['Zvolen', 'Žiar nad Hronom'] } },
+  { src: '/photos/routes/IMG_8953.JPG', distanceMi: 38.9, durationMinutes: 265, oneWay: true, places: { sk: ['Chimki', 'zelený okruh'], en: ['Khimki', 'green ring'] } },
+  { src: '/photos/routes/IMG_8951.JPG', distanceMi: 29.54, durationMinutes: 195, roundTrip: true, places: { sk: ['Zvolen', 'Banská Bystrica'], en: ['Zvolen', 'Banská Bystrica'] } },
+  { src: '/photos/routes/IMG_8975.JPG', distanceMi: 18, durationMinutes: 104, places: { sk: 'okres Zvolen loop', en: 'Zvolen district loop' } },
+  { src: '/photos/routes/IMG_8952.JPG', distanceMi: 11.15, durationMinutes: 96, roundTrip: true, places: { sk: ['Antalya, Turecko', 'cyklovýlet'], en: ['Antalya, Turkey', 'bike ride'] } },
 ]
 
 const content = {
   sk: {
-    title: 'Nikita',
+    titleHello: 'Ahoj,',
+    titleName: 'ja som Nikita',
     explore: 'vybrať tému',
     scrollTop: 'späť na začiatok',
     scrollDown: 'ďalšia sekcia',
@@ -71,7 +76,13 @@ const content = {
       ],
     },
     socialTitle: 'Kontakt',
-    socials: [{ label: 'Instagram', value: '@geeksaider', href: 'https://instagram.com/geeksaider' }, { label: 'Telegram', value: '@geeksaider', href: 'https://t.me/geeksaider' }, { label: 'E-mail', value: 'geeksaider@gmail.com', href: 'mailto:geeksaider@gmail.com' }],
+    socials: [
+      { label: 'Instagram', value: '@geeksaider', href: 'https://instagram.com/geeksaider', icon: 'instagram' },
+      { label: 'Telegram', value: '@geeksaider', href: 'https://t.me/geeksaider', icon: 'telegram' },
+      { label: 'Discord', value: 'geeksaider', href: 'https://discord.com/users/geeksaider', icon: 'discord' },
+      { label: 'GitHub', value: 'geeksaider', href: 'https://github.com/geeksaider', icon: 'github' },
+      { label: 'E-mail', value: 'geeksaider@gmail.com', href: 'mailto:geeksaider@gmail.com', icon: 'mail' },
+    ],
     menu: {
       music: { title: 'Môj hudobný vkus' },
       films: { title: 'Filmy a seriály' },
@@ -102,15 +113,16 @@ const content = {
       routes: 'Moje cyklotrasy', route: 'Cyklotrasa', openRoute: 'Podrobnosti',
       distance: 'vzdialenosť', duration: 'čas', speed: 'priemerná rýchlosť',
       items: [
-        { title: 'Práca', color: 'var(--acid)', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita v práci', details: 'Pracoval som na viacerých pozíciách, od kuchára až po systémového analytika.' },
-        { title: 'Programovanie', color: 'var(--pink)', photo: '/photos/programming.jpg', photoAlt: 'Kód na obrazovke notebooku', details: 'Tvorím weby a digitálne produkty.' },
-        { title: 'Cyklistika', color: 'var(--violet)', photo: '/photos/hobby-cycling.jpg', photoAlt: 'Nikita s bicyklom', details: 'Moja najdlhšia uložená trasa má 95,4 km.' },
-        { title: 'Voľný čas', color: 'var(--blue)', photo: '/photos/mirror.jpg', photoAlt: 'Nikita so slúchadlami v zrkadle', details: '8 rokov som študoval hru na violončele. Hrám na gitare, kedysi som hral v kapele. Rád hrávam volejbal.' },
+        { title: 'Práca', color: '#e31e24', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita v práci', details: 'Pracoval som na viacerých pozíciách, od kuchára až po systémového analytika.' },
+        { title: 'Programovanie', color: '#111111', photo: '/photos/programming.jpg', photoAlt: 'Kód na obrazovke notebooku', details: 'Tvorím weby a digitálne produkty.' },
+        { title: 'Cyklistika', color: '#f2f2f2', photo: '/photos/hobby-cycling.jpg', photoAlt: 'Nikita s bicyklom', details: 'Moja najdlhšia uložená trasa má 95,4 km.' },
+        { title: 'Voľný čas', color: '#8a8a8a', photo: '/photos/mirror.jpg', photoAlt: 'Nikita so slúchadlami v zrkadle', details: '8 rokov som študoval hru na violončele. Hrám na gitare, kedysi som hral v kapele. Rád hrávam volejbal.' },
       ],
     },
   },
   en: {
-    title: 'Nikita',
+    titleHello: 'Hi,',
+    titleName: "I'm Nikita",
     explore: 'choose a topic', scrollTop: 'back to top', scrollDown: 'next section', contact: 'Message me', back: 'back', previous: 'previous card', next: 'next card',
     facts: {
       title: 'Fun Facts',
@@ -128,7 +140,13 @@ const content = {
       ],
     },
     socialTitle: 'Contact',
-    socials: [{ label: 'Instagram', value: '@geeksaider', href: 'https://instagram.com/geeksaider' }, { label: 'Telegram', value: '@geeksaider', href: 'https://t.me/geeksaider' }, { label: 'E-mail', value: 'geeksaider@gmail.com', href: 'mailto:geeksaider@gmail.com' }],
+    socials: [
+      { label: 'Instagram', value: '@geeksaider', href: 'https://instagram.com/geeksaider', icon: 'instagram' },
+      { label: 'Telegram', value: '@geeksaider', href: 'https://t.me/geeksaider', icon: 'telegram' },
+      { label: 'Discord', value: 'geeksaider', href: 'https://discord.com/users/geeksaider', icon: 'discord' },
+      { label: 'GitHub', value: 'geeksaider', href: 'https://github.com/geeksaider', icon: 'github' },
+      { label: 'E-mail', value: 'geeksaider@gmail.com', href: 'mailto:geeksaider@gmail.com', icon: 'mail' },
+    ],
     menu: {
       music: { title: 'My music taste' },
       films: { title: 'Films & series' },
@@ -159,10 +177,10 @@ const content = {
       routes: 'My cycling routes', route: 'Cycling route', openRoute: 'Details',
       distance: 'distance', duration: 'time', speed: 'average speed',
       items: [
-        { title: 'Work', color: 'var(--acid)', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita at work', details: 'I have worked in several roles, from cook to systems analyst.' },
-        { title: 'Programming', color: 'var(--pink)', photo: '/photos/programming.jpg', photoAlt: 'Code on a laptop screen', details: 'I build websites and digital products.' },
-        { title: 'Cycling', color: 'var(--violet)', photo: '/photos/hobby-cycling.jpg', photoAlt: 'Nikita with a bicycle', details: 'My longest saved ride is 95.4 km.' },
-        { title: 'Free time', color: 'var(--blue)', photo: '/photos/mirror.jpg', photoAlt: 'Nikita wearing headphones in a mirror', details: 'I studied cello for 8 years. I play guitar and used to play in a band. I also enjoy playing volleyball.' },
+        { title: 'Work', color: '#e31e24', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita at work', details: 'I have worked in several roles, from cook to systems analyst.' },
+        { title: 'Programming', color: '#111111', photo: '/photos/programming.jpg', photoAlt: 'Code on a laptop screen', details: 'I build websites and digital products.' },
+        { title: 'Cycling', color: '#f2f2f2', photo: '/photos/hobby-cycling.jpg', photoAlt: 'Nikita with a bicycle', details: 'My longest saved ride is 95.4 km.' },
+        { title: 'Free time', color: '#8a8a8a', photo: '/photos/mirror.jpg', photoAlt: 'Nikita wearing headphones in a mirror', details: 'I studied cello for 8 years. I play guitar and used to play in a band. I also enjoy playing volleyball.' },
       ],
     },
   },
@@ -178,7 +196,16 @@ function textColorFor(background) {
     return value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4
   })
   const luminance = channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722
-  return luminance < .2 ? '#fff' : '#121310'
+  return luminance < .2 ? '#fff' : '#111111'
+}
+
+function isLightColor(background) {
+  if (!background?.startsWith('#')) return false
+  const channels = background.slice(1).match(/.{2}/g).map((channel) => {
+    const value = parseInt(channel, 16) / 255
+    return value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4
+  })
+  return channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722 > .55
 }
 
 const currentMusicInk = computed(() => textColorFor(currentMusic.value.color))
@@ -189,7 +216,7 @@ watchEffect(() => {
     ? currentMusic.value.color
     : view.value === 'films'
       ? currentFilm.value.color
-      : '#f4f1e8'
+      : '#ffffff'
   document.documentElement.style.setProperty('--page-surface', color)
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color)
 })
@@ -218,7 +245,14 @@ function routeNumber(index) {
 }
 
 function routeLabel(route, index) {
-  return route.places?.[language.value] || `${t.value.hobbies.route} ${routeNumber(index)}`
+  const places = route.places?.[language.value]
+  if (Array.isArray(places)) return places.join(' ')
+  return places || `${t.value.hobbies.route} ${routeNumber(index)}`
+}
+
+function routePlaces(route) {
+  const places = route.places?.[language.value]
+  return Array.isArray(places) ? places : null
 }
 
 function setLanguage(value) {
@@ -325,6 +359,17 @@ function scrollPage() {
 
 function contact() {
   contactOpen.value = true
+  document.body.classList.add('modal-open')
+  nextTick(() => socialModal.value?.querySelector('.modal-close')?.focus())
+}
+
+function closeContact() {
+  contactOpen.value = false
+  document.body.classList.remove('modal-open')
+}
+
+function onGlobalKeydown(event) {
+  if (event.key === 'Escape' && contactOpen.value) closeContact()
 }
 
 function moveFilm(direction) {
@@ -340,6 +385,8 @@ function photoPosition(index) {
 
 function startSwipe(event, type) {
   if (event.pointerType === 'mouse' && event.button !== 0) return
+  event.preventDefault()
+  window.getSelection()?.removeAllRanges()
   swipeStart.value = event.clientX
   swipeType.value = type
   swipePointer.value = event.pointerId
@@ -357,6 +404,7 @@ function cancelSwipe() {
   swipeType.value = null
   swipePointer.value = null
   dragX.value = 0
+  window.getSelection()?.removeAllRanges()
 }
 
 function finishSwipe(event) {
@@ -386,12 +434,15 @@ onMounted(() => {
   addEventListener('hashchange', readHash)
   addEventListener('scroll', updateScrollCue, { passive: true })
   addEventListener('resize', updateScrollCue)
+  addEventListener('keydown', onGlobalKeydown)
 })
 
 onUnmounted(() => {
   removeEventListener('hashchange', readHash)
   removeEventListener('scroll', updateScrollCue)
   removeEventListener('resize', updateScrollCue)
+  removeEventListener('keydown', onGlobalKeydown)
+  document.body.classList.remove('modal-open')
 })
 </script>
 
@@ -410,7 +461,10 @@ onUnmounted(() => {
     <main v-if="view === 'home'" class="home-page">
       <section class="profile container">
         <div class="profile-copy">
-          <h1>{{ t.title }}</h1>
+          <h1 class="profile-title">
+            <span class="profile-hello">{{ t.titleHello }}</span>
+            <span class="profile-name">{{ t.titleName }}</span>
+          </h1>
           <div class="profile-actions">
             <button class="contact-button" @click="contact">
               <i class="message-icon" aria-hidden="true"><MessageCircleMore :size="22" :stroke-width="2" /></i>
@@ -434,7 +488,7 @@ onUnmounted(() => {
       <section class="facts container" :aria-label="t.facts.title">
         <div class="facts-heading"><h2>{{ t.facts.title }}</h2></div>
         <div class="facts-grid">
-          <div v-for="(question, index) in t.facts.questions" :key="index" class="fact-note">
+          <div v-for="(question, index) in t.facts.questions" :key="index" class="fact-note" :class="{ 'is-open': revealedFacts[index] }" @click="revealedFacts[index] = true">
             <i class="note-magnet" aria-hidden="true"></i>
             <h3>{{ question[0] }}</h3>
             <button type="button" class="fact-reveal" :class="{ 'is-revealed': revealedFacts[index] }" :disabled="question[3] === null" :aria-label="`${question[0]} ${revealedFacts[index] ? question[question[3]] : language === 'sk' ? 'odkryť odpoveď' : 'reveal answer'}`" :aria-pressed="revealedFacts[index]" @click="revealedFacts[index] = true">
@@ -449,13 +503,13 @@ onUnmounted(() => {
         <div class="topic-heading"><h2>{{ t.explore }}</h2></div>
 
         <div class="topic-grid" ref="topicsGrid" @scroll="updateTopicPosition">
-          <button v-for="name in ['music', 'films', 'hobbies']" :key="name" class="topic-card" :class="`topic-${name}`" @click="openView(name)">
+          <button v-for="name in ['hobbies', 'music', 'films']" :key="name" class="topic-card" :class="`topic-${name}`" @click="openView(name)">
             <ArrowUpRight class="topic-open-icon" :size="22" aria-hidden="true" />
             <component :is="topicIcons[name]" class="topic-icon" :size="110" :stroke-width="1.5" aria-hidden="true" />
             <h3>{{ t.menu[name].title }}</h3>
           </button>
         </div>
-        <div class="topic-swipe-cue" :aria-label="t.explore"><button v-for="(name, index) in ['music', 'films', 'hobbies']" :key="name" type="button" :class="{ active: index === activeTopic }" :aria-label="t.menu[name].title" :aria-current="index === activeTopic ? 'true' : undefined" @click="scrollToTopic(index)"></button></div>
+        <div class="topic-swipe-cue" :aria-label="t.explore"><button v-for="(name, index) in ['hobbies', 'music', 'films']" :key="name" type="button" :class="{ active: index === activeTopic }" :aria-label="t.menu[name].title" :aria-current="index === activeTopic ? 'true' : undefined" @click="scrollToTopic(index)"></button></div>
       </section>
     </main>
 
@@ -464,7 +518,7 @@ onUnmounted(() => {
         <div class="wrapped-heading"><h1>{{ t.music.title }}</h1></div>
         <div class="interest-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'music' }" :style="{ '--drag-x': swipeType === 'music' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'music')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
-            <div v-for="(item, index) in t.music.items" :key="item.title" class="interest-card music-interest-card" :class="{ 'is-active': index === activeMusic }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeMusic + t.music.items.length) % t.music.items.length}` }">
+            <div v-for="(item, index) in t.music.items" :key="index" class="interest-card music-interest-card" :class="{ 'is-active': index === activeMusic, 'is-near': (index - activeMusic + t.music.items.length) % t.music.items.length <= 2 }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeMusic + t.music.items.length) % t.music.items.length}` }">
               <span class="card-index">0{{ index + 1 }}</span><img :src="item.cover" :alt="`${item.title} — ${item.artist}`" draggable="false" @error="$event.currentTarget.style.display = 'none'">
             </div>
             <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in t.music.items" :key="index" :class="{ active: index === activeMusic }"></i></div>
@@ -483,7 +537,7 @@ onUnmounted(() => {
         <div class="wrapped-heading"><h1>{{ t.films.title }}</h1></div>
         <div class="interest-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'films' }" :style="{ '--drag-x': swipeType === 'films' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'films')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
-            <div v-for="(item, index) in t.films.items" :key="item.title" class="interest-card film-interest-card" :class="{ 'is-active': index === activeFilm }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeFilm + t.films.items.length) % t.films.items.length}` }">
+            <div v-for="(item, index) in t.films.items" :key="index" class="interest-card film-interest-card" :class="{ 'is-active': index === activeFilm, 'is-near': (index - activeFilm + t.films.items.length) % t.films.items.length <= 2 }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeFilm + t.films.items.length) % t.films.items.length}` }">
               <span class="card-index">0{{ index + 1 }}</span>
               <img :src="item.cover" :alt="item.title" draggable="false" @error="$event.currentTarget.style.display = 'none'">
               <b>{{ item.type }}</b>
@@ -506,9 +560,9 @@ onUnmounted(() => {
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'hobbies' }" :style="{ '--drag-x': swipeType === 'hobbies' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'hobbies')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
             <article
               v-for="(item, index) in t.hobbies.items"
-              :key="item.title"
+              :key="index"
               class="interest-card hobby-interest-card"
-              :class="{ 'is-active': index === activeHobby, 'is-light': /acid|pink|blue/.test(item.color) }"
+              :class="{ 'is-active': index === activeHobby, 'is-near': (index - activeHobby + t.hobbies.items.length) % t.hobbies.items.length <= 2, 'is-light': isLightColor(item.color) }"
               :style="{ '--card-color': item.color, '--card-offset': `${(index - activeHobby + t.hobbies.items.length) % t.hobbies.items.length}` }"
             >
               <img v-if="item.photo && index === activeHobby" class="hobby-photo" :class="{ 'photo-inverted': item.photo === '/photos/mirror.jpg' }" :src="item.photo" :alt="item.photoAlt" loading="lazy" draggable="false">
@@ -538,22 +592,47 @@ onUnmounted(() => {
             <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in cyclingRoutes" :key="index" :class="{ active: index === activeRoute }"></i></div>
           </div>
           <div class="route-carousel-copy">
-            <h2 :key="activeRoute">{{ routeLabel(cyclingRoutes[activeRoute], activeRoute) }}</h2>
+            <h2 :key="activeRoute" class="route-title">
+              <template v-if="routePlaces(cyclingRoutes[activeRoute])">
+                <span>{{ routePlaces(cyclingRoutes[activeRoute])[0] }}</span>
+                <ArrowLeftRight v-if="cyclingRoutes[activeRoute].roundTrip" class="route-dir-icon" aria-hidden="true" />
+                <ArrowRight v-else class="route-dir-icon" aria-hidden="true" />
+                <span>{{ routePlaces(cyclingRoutes[activeRoute])[1] }}</span>
+              </template>
+              <span v-else>{{ routeLabel(cyclingRoutes[activeRoute], activeRoute) }}</span>
+            </h2>
             <div class="route-metrics">
               <div><span>{{ t.hobbies.distance }}</span><strong>{{ routeDistance(cyclingRoutes[activeRoute]) }} km</strong></div>
               <div><span>{{ t.hobbies.duration }}</span><strong>{{ routeDuration(cyclingRoutes[activeRoute]) }}</strong></div>
               <div><span>{{ t.hobbies.speed }}</span><strong>≈ {{ routeSpeed(cyclingRoutes[activeRoute]) }} km/h</strong></div>
             </div>
+            <div class="card-controls"><button :aria-label="t.previous" @click="moveRoute(-1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveRoute(1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
           </div>
         </div>
       </div>
     </main>
 
-    <div v-if="contactOpen" class="modal-backdrop" @click.self="contactOpen = false">
-      <section class="social-modal" role="dialog" aria-modal="true" :aria-label="t.socialTitle">
-        <button class="modal-close" :aria-label="t.back" @click="contactOpen = false"><X :size="20" aria-hidden="true" /></button>
+    <div v-if="contactOpen" class="modal-backdrop" @click.self="closeContact">
+      <section ref="socialModal" class="social-modal" role="dialog" aria-modal="true" :aria-label="t.socialTitle" @keydown.esc="closeContact">
+        <button class="modal-close" :aria-label="t.back" @click="closeContact"><X :size="20" aria-hidden="true" /></button>
         <h2>{{ t.socialTitle }}</h2>
-        <a v-for="social in t.socials" :key="social.label" :href="social.href" :target="social.href.startsWith('http') ? '_blank' : undefined" :rel="social.href.startsWith('http') ? 'noopener noreferrer' : undefined">{{ social.label }} <span>{{ social.value }} <ExternalLink v-if="social.href.startsWith('http')" :size="14" aria-hidden="true" /><Mail v-else :size="14" aria-hidden="true" /></span></a>
+        <a v-for="social in t.socials" :key="social.label" :href="social.href" :target="social.href.startsWith('http') ? '_blank' : undefined" :rel="social.href.startsWith('http') ? 'noopener noreferrer' : undefined">
+          <span class="social-label">
+            <i class="social-icon" :style="{ color: brandIcons[social.icon].color }" aria-hidden="true">
+              <img
+                v-if="brandIcons[social.icon].slug"
+                :src="`https://cdn.simpleicons.org/${brandIcons[social.icon].slug}`"
+                width="22"
+                height="22"
+                alt=""
+                draggable="false"
+              >
+              <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            </i>
+            <span class="social-name">{{ social.label }}</span>
+          </span>
+          <span class="social-value">{{ social.value }}</span>
+        </a>
       </section>
     </div>
 
