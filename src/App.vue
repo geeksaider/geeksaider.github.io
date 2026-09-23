@@ -72,7 +72,7 @@ const content = {
       hobbies: { title: 'Hobby' },
     },
     music: {
-      title: 'Môj hudobný vkus', hint: 'potiahni alebo klikni', swipeHint: 'potiahni kartu',
+      title: 'Môj hudobný vkus', hint: 'potiahni alebo klikni',
       items: [
         { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg' },
         { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg' },
@@ -82,7 +82,7 @@ const content = {
       ],
     },
     films: {
-      title: 'Filmy a seriály', hint: 'potiahni alebo klikni', swipeHint: 'potiahni kartu',
+      title: 'Filmy a seriály', hint: 'potiahni alebo klikni',
       items: [
         { title: 'Stávka na neistotu', year: '2015', type: 'FILM', color: '#7657ff', cover: '/photos/covers/big-short.jpg' },
         { title: 'Hlúpa láska', year: '2011', type: 'FILM', color: '#ffb2d0', cover: '/photos/covers/crazy-stupid-love.jpg' },
@@ -128,7 +128,7 @@ const content = {
       hobbies: { title: 'Hobbies' },
     },
     music: {
-      title: 'My music taste', hint: 'swipe or click', swipeHint: 'swipe the card',
+      title: 'My music taste', hint: 'swipe or click',
       items: [
         { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg' },
         { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg' },
@@ -138,7 +138,7 @@ const content = {
       ],
     },
     films: {
-      title: 'Films & series', hint: 'swipe or click', swipeHint: 'swipe the card',
+      title: 'Films & series', hint: 'swipe or click',
       items: [
         { title: 'The Big Short', year: '2015', type: 'FILM', color: '#7657ff', cover: '/photos/covers/big-short.jpg' },
         { title: 'Crazy, Stupid, Love', year: '2011', type: 'FILM', color: '#ffb2d0', cover: '/photos/covers/crazy-stupid-love.jpg' },
@@ -166,7 +166,6 @@ const content = {
 const t = computed(() => content[language.value])
 const currentMusic = computed(() => t.value.music.items[activeMusic.value])
 const currentFilm = computed(() => t.value.films.items[activeFilm.value])
-const currentHobby = computed(() => t.value.hobbies.items[activeHobby.value])
 const currentRoute = computed(() => cyclingRoutes[activeRoute.value])
 const themeColor = computed(() => view.value === 'music' ? currentMusic.value.color : view.value === 'films' ? currentFilm.value.color : '#f4f1e8')
 
@@ -411,7 +410,12 @@ onUnmounted(() => {
               <span class="card-index">0{{ index + 1 }}</span><img :src="item.cover" :alt="`${item.title} — ${item.artist}`" draggable="false" @error="$event.currentTarget.style.display = 'none'">
             </div>
           </div>
-          <div class="interest-copy"><small><span class="desktop-hint">{{ t.music.hint }}</span><span class="mobile-hint">{{ t.music.swipeHint }}</span></small><h2>{{ currentMusic.title }}</h2><p>{{ currentMusic.artist }}</p><div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('music', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('music', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div></div>
+          <div class="interest-copy">
+            <small class="desktop-hint">{{ t.music.hint }}</small>
+            <div class="interest-title-slot"><h2 v-for="(item, index) in t.music.items" :key="item.title" :class="{ 'is-active': index === activeMusic }" :aria-hidden="index !== activeMusic">{{ item.title }}</h2></div>
+            <div class="interest-meta-slot"><p v-for="(item, index) in t.music.items" :key="item.title" :class="{ 'is-active': index === activeMusic }" :aria-hidden="index !== activeMusic">{{ item.artist }}</p></div>
+            <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('music', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('music', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
+          </div>
         </div>
       </div>
     </main>
@@ -428,7 +432,12 @@ onUnmounted(() => {
               <b>{{ item.type }}</b>
             </div>
           </div>
-          <div class="interest-copy"><small><span class="desktop-hint">{{ t.films.hint }}</span><span class="mobile-hint">{{ t.films.swipeHint }}</span></small><h2>{{ currentFilm.title }}</h2><p>{{ currentFilm.year }}</p><div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('films', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('films', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div></div>
+          <div class="interest-copy">
+            <small class="desktop-hint">{{ t.films.hint }}</small>
+            <div class="interest-title-slot"><h2 v-for="(item, index) in t.films.items" :key="item.title" :class="{ 'is-active': index === activeFilm }" :aria-hidden="index !== activeFilm">{{ item.title }}</h2></div>
+            <div class="interest-meta-slot"><p v-for="(item, index) in t.films.items" :key="item.title" :class="{ 'is-active': index === activeFilm }" :aria-hidden="index !== activeFilm">{{ item.year }}</p></div>
+            <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('films', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('films', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
+          </div>
         </div>
       </div>
     </main>
@@ -452,8 +461,8 @@ onUnmounted(() => {
             </article>
           </div>
           <div class="interest-copy">
-            <h2>{{ currentHobby.title }}</h2>
-            <p v-if="currentHobby.details" class="hobby-details">{{ currentHobby.details }}</p>
+            <div class="interest-title-slot"><h2 v-for="(item, index) in t.hobbies.items" :key="item.title" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.title }}</h2></div>
+            <div class="interest-meta-slot"><p v-for="(item, index) in t.hobbies.items" :key="item.title" class="hobby-details" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.details }}</p></div>
             <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
           </div>
         </div>

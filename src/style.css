@@ -109,10 +109,14 @@ a { text-decoration: none; }
 .film-interest-card b { position: absolute; z-index: 2; right: 20px; bottom: 18px; font: 800 10px ui-monospace, monospace; }
 .film-interest-card { background: var(--card-color, var(--ink)); }
 .film-interest-card b { color: white; text-shadow: 0 1px 2px #0008; }
-.interest-copy h2 { max-width: 650px; margin: 17px 0 10px; font-size: clamp(40px, 5vw, 76px); line-height: .92; letter-spacing: -.07em; }
+.interest-copy { min-width: 0; }
+.interest-title-slot, .interest-meta-slot { display: grid; min-width: 0; }
+.interest-title-slot > *, .interest-meta-slot > * { grid-area: 1 / 1; visibility: hidden; }
+.interest-title-slot > .is-active, .interest-meta-slot > .is-active { visibility: visible; }
+.interest-copy h2 { max-width: 650px; margin: 17px 0 10px; font-size: clamp(40px, 5vw, 76px); line-height: .92; letter-spacing: -.07em; overflow-wrap: break-word; }
 .interest-copy p { margin: 0; font-size: 18px; font-weight: 750; }
 .interest-copy > small { font: 800 9px ui-monospace, monospace; text-transform: uppercase; }
-.mobile-hint { display: none; }
+.hobbies-page .interest-copy h2 { margin-top: 0; }
 .card-controls { display: flex; gap: 10px; margin-top: 38px; }
 .card-controls button { display: grid; width: 52px; height: 52px; place-items: center; background: transparent; border: 1px solid; border-radius: 50%; font-size: 21px; }
 .card-controls button:hover { color: white; background: var(--ink); }
@@ -233,12 +237,12 @@ a { text-decoration: none; }
   .wrapped-heading { margin-top: 18px; }
   .wrapped-heading h1 { font-size: clamp(43px, 11vw, 56px); line-height: .9; }
   .music-layout { grid-template-columns: 1fr; gap: 34px; margin-top: 38px; }
-  .interest-layout { grid-template-columns: 1fr; gap: 24px; margin-top: 20px; }
+  .interest-layout { grid-template-columns: 1fr; gap: 50px; margin-top: 20px; }
   .interest-stack { width: min(100%, 350px, max(220px, calc((100svh - 285px - env(safe-area-inset-top, 0px)) * .78))); }
+  .interest-card:not(.is-active) { transform: translateY(calc(var(--card-offset) * 6px)) scale(calc(1 - var(--card-offset) * .045)) rotate(calc(var(--card-offset) * 2deg)); }
   .interest-copy h2 { font-size: 44px; }
   .card-controls { display: none; }
   .desktop-hint { display: none; }
-  .mobile-hint { display: inline; }
   .album-card { width: min(100%, 390px); }
   .track-info h2 { font-size: 42px; }
   .rank-picker { justify-content: space-between; }
