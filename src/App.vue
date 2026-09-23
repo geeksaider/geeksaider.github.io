@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watchEffect } from 'vue'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, Clapperboard, CodeXml, ExternalLink, Mail, Map, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
 
 const topicIcons = { music: Music2, films: Clapperboard, hobbies: Shapes }
@@ -183,6 +183,16 @@ function textColorFor(background) {
 
 const currentMusicInk = computed(() => textColorFor(currentMusic.value.color))
 const currentFilmInk = computed(() => textColorFor(currentFilm.value.color))
+
+watchEffect(() => {
+  const color = view.value === 'music'
+    ? currentMusic.value.color
+    : view.value === 'films'
+      ? currentFilm.value.color
+      : '#f4f1e8'
+  document.documentElement.style.setProperty('--page-surface', color)
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color)
+})
 
 function formatRouteNumber(value) {
   return new Intl.NumberFormat(language.value === 'sk' ? 'sk-SK' : 'en-US', {
