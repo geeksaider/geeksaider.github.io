@@ -1,5 +1,5 @@
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, ChevronDown, Clapperboard, CodeXml, ExternalLink, Mail, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
 
 const topicIcons = { music: Music2, films: Clapperboard, hobbies: Shapes }
@@ -11,6 +11,9 @@ const activeMusic = ref(0)
 const activeFilm = ref(0)
 const activePhoto = ref(0)
 const activeHobby = ref(0)
+const activeRoute = ref(0)
+const routesExpanded = ref(true)
+const routesDetails = ref(null)
 const revealedFacts = ref(Array(10).fill(false))
 const swipeStart = ref(null)
 const swipeType = ref(null)
@@ -32,9 +35,9 @@ const cyclingRoutes = [
   { src: '/photos/routes/IMG_8943.JPG', distanceMi: 57.4, durationMinutes: 286 },
   { src: '/photos/routes/IMG_8949.JPG', distanceMi: 56.95, durationMinutes: 334 },
   { src: '/photos/routes/IMG_8950.JPG', distanceMi: 45.8, durationMinutes: 396 },
-  { src: '/photos/routes/IMG_8944.JPG', distanceMi: 40.5, durationMinutes: 202 },
+  { src: '/photos/routes/IMG_8944.JPG', distanceMi: 40.5, durationMinutes: 202, places: { sk: 'Trnava ↔ Bratislava', en: 'Trnava ↔ Bratislava' } },
   { src: '/photos/routes/IMG_8945.PNG', distanceMi: 38.9, durationMinutes: 265 },
-  { src: '/photos/routes/IMG_8953.JPG', distanceMi: 37.11, durationMinutes: 437 },
+  { src: '/photos/routes/IMG_8953.JPG', distanceMi: 37.11, durationMinutes: 437, places: { sk: 'Moskva ↔ Chimki', en: 'Moscow ↔ Khimki' } },
   { src: '/photos/routes/IMG_8951.JPG', distanceMi: 29.54, durationMinutes: 195 },
   { src: '/photos/routes/IMG_8946.PNG', distanceMi: 18, durationMinutes: 104 },
   { src: '/photos/routes/IMG_8952.JPG', distanceMi: 11.15, durationMinutes: 96 },
@@ -169,6 +172,10 @@ const t = computed(() => content[language.value])
 const currentMusic = computed(() => t.value.music.items[activeMusic.value])
 const currentFilm = computed(() => t.value.films.items[activeFilm.value])
 
+watch(activeHobby, (index) => {
+  if (index === 2) routesExpanded.value = true
+})
+
 function formatRouteNumber(value) {
   return new Intl.NumberFormat(language.value === 'sk' ? 'sk-SK' : 'en-US', {
     minimumFractionDigits: 1,
@@ -192,6 +199,10 @@ function routeNumber(index) {
   return String(index + 1).padStart(2, '0')
 }
 
+function routeLabel(route, index) {
+  return route.places?.[language.value] || `${t.value.hobbies.route} ${routeNumber(index)}`
+}
+
 function setLanguage(value) {
   language.value = value
   document.documentElement.lang = value
@@ -200,9 +211,22 @@ function setLanguage(value) {
 
 function readHash() {
   const hash = location.hash.slice(1)
-  view.value = ['music', 'films', 'hobbies'].includes(hash) ? hash : 'home'
+  const routeMatch = /^route-(\d+)$/.exec(hash)
+  const fromRoute = view.value === 'route'
+  if (routeMatch && Number(routeMatch[1]) >= 1 && Number(routeMatch[1]) <= cyclingRoutes.length) {
+    activeRoute.value = Number(routeMatch[1]) - 1
+    activeHobby.value = 2
+    view.value = 'route'
+  } else {
+    view.value = ['music', 'films', 'hobbies'].includes(hash) ? hash : 'home'
+  }
   nextTick(() => {
-    window.scrollTo(0, 0)
+    if (fromRoute && view.value === 'hobbies') {
+      routesExpanded.value = true
+      nextTick(() => routesDetails.value?.scrollIntoView({ block: 'start' }))
+    } else {
+      window.scrollTo(0, 0)
+    }
     updateScrollCue()
   })
 }
@@ -218,6 +242,21 @@ function goHome() {
     window.scrollTo(0, 0)
     updateScrollCue()
   })
+}
+
+function goBack() {
+  if (view.value === 'route') {
+    routesExpanded.value = true
+    location.hash = 'hobbies'
+  } else {
+    goHome()
+  }
+}
+
+function openRoute(index) {
+  activeRoute.value = index
+  routesExpanded.value = true
+  location.hash = `route-${index + 1}`
 }
 
 function updateScrollCue() {
@@ -316,7 +355,7 @@ onUnmounted(() => {
   <div class="app">
     <header class="topbar container" :class="{ 'inner-topbar': view !== 'home', 'home-topbar': view === 'home' }">
       <button v-if="view === 'home'" class="logo" aria-label="Home" @click="goHome">N<span>.</span></button>
-      <button v-else class="back-button" @click="goHome"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
+      <button v-else class="back-button" @click="goBack"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
       <div class="language-picker">
         <button :class="{ active: language === 'sk' }" @click="setLanguage('sk')">SK</button>
         <i>/</i>
@@ -350,12 +389,12 @@ onUnmounted(() => {
 
       <section class="facts container" :aria-label="t.facts.title">
         <div class="facts-folder">
-          <div class="facts-heading"><h2>Fun<br>Facts</h2></div>
+          <div class="facts-heading"><h2>{{ t.facts.title }}</h2><span>{{ language === 'sk' ? 'ťukni a odkry' : 'tap to reveal' }}</span></div>
           <div class="facts-grid">
             <div v-for="(question, index) in t.facts.questions" :key="index" class="fact-row">
               <h3>{{ question[0] }}</h3>
               <button type="button" class="fact-reveal" :class="{ 'is-revealed': revealedFacts[index] }" :disabled="question[3] === null" :aria-label="`${question[0]} ${revealedFacts[index] ? question[question[3]] : language === 'sk' ? 'odkryť odpoveď' : 'reveal answer'}`" :aria-pressed="revealedFacts[index]" @click="revealedFacts[index] = true">
-                <span>{{ question[3] === null ? '?' : question[question[3]] }}</span>
+                <span v-if="revealedFacts[index]">{{ question[question[3]] }}</span><span v-else aria-hidden="true">?</span>
               </button>
             </div>
           </div>
@@ -413,9 +452,12 @@ onUnmounted(() => {
       </div>
     </main>
 
-    <main v-else class="wrapped-page hobbies-page">
+    <main v-else-if="view === 'hobbies'" class="wrapped-page hobbies-page">
       <div class="container inner-page">
         <div class="wrapped-heading"><h1>{{ t.hobbies.title }}</h1></div>
+        <nav class="hobby-tabs" :aria-label="t.menu.hobbies.title">
+          <button v-for="(item, index) in t.hobbies.items" :key="item.title" type="button" :class="{ active: index === activeHobby }" :aria-pressed="index === activeHobby" @click="activeHobby = index">{{ item.title }}</button>
+        </nav>
         <div class="interest-layout hobbies-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'hobbies' }" :style="{ '--drag-x': swipeType === 'hobbies' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'hobbies')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
             <article
@@ -436,22 +478,36 @@ onUnmounted(() => {
               <div class="interest-meta-slot"><p v-for="(item, index) in t.hobbies.items" :key="item.title" class="hobby-details" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.details }}</p></div>
               <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
             </div>
-            <details v-if="activeHobby === 2" class="cycling-routes">
-              <summary><span>{{ t.hobbies.routes }}</span><ChevronDown :size="22" aria-hidden="true" /></summary>
+            <details v-if="activeHobby === 2" ref="routesDetails" class="cycling-routes" :open="routesExpanded" @toggle="routesExpanded = $event.target.open">
+              <summary><span>{{ t.hobbies.routes }} <small>10</small></span><ChevronDown :size="22" aria-hidden="true" /></summary>
               <div class="cycling-routes-list">
-                <details v-for="(route, index) in cyclingRoutes" :key="route.src" class="cycling-route">
-                  <summary><span>{{ t.hobbies.route }} {{ routeNumber(index) }}</span><strong>{{ routeDistance(route) }} km</strong><ChevronDown :size="17" aria-hidden="true" /></summary>
-                  <div class="cycling-route-details">
-                    <div><span>{{ t.hobbies.distance }}</span><strong>{{ routeDistance(route) }} km</strong></div>
-                    <div><span>{{ t.hobbies.duration }}</span><strong>{{ routeDuration(route) }}</strong></div>
-                    <div><span>{{ t.hobbies.speed }}</span><strong>≈ {{ routeSpeed(route) }} km/h</strong></div>
-                    <small>{{ t.hobbies.speedNote }}</small>
-                  </div>
-                </details>
+                <a v-for="(route, index) in cyclingRoutes" :key="route.src" class="cycling-route-link" :href="`#route-${index + 1}`" @click.prevent="openRoute(index)">
+                  <span><small>{{ routeNumber(index) }}</small>{{ routeLabel(route, index) }}</span><strong>{{ routeDistance(route) }} km</strong><ArrowUpRight :size="18" aria-hidden="true" />
+                </a>
               </div>
             </details>
           </div>
         </div>
+      </div>
+    </main>
+
+    <main v-else class="wrapped-page route-page">
+      <div class="container inner-page">
+        <div class="route-page-heading">
+          <small>{{ t.hobbies.route }} {{ routeNumber(activeRoute) }}</small>
+          <h1>{{ routeLabel(cyclingRoutes[activeRoute], activeRoute) }}</h1>
+        </div>
+        <div class="route-page-stats">
+          <div class="route-main-stat"><span>{{ t.hobbies.distance }}</span><strong>{{ routeDistance(cyclingRoutes[activeRoute]) }} <small>km</small></strong></div>
+          <div><span>{{ t.hobbies.duration }}</span><strong>{{ routeDuration(cyclingRoutes[activeRoute]) }}</strong></div>
+          <div><span>{{ t.hobbies.speed }}</span><strong>≈ {{ routeSpeed(cyclingRoutes[activeRoute]) }} km/h</strong></div>
+        </div>
+        <p class="route-speed-note">{{ t.hobbies.speedNote }}</p>
+        <figure class="route-source"><img :src="cyclingRoutes[activeRoute].src" :alt="`${routeLabel(cyclingRoutes[activeRoute], activeRoute)} — ${routeDistance(cyclingRoutes[activeRoute])} km`"><figcaption>{{ language === 'sk' ? 'Pôvodný záznam trasy' : 'Original route record' }}</figcaption></figure>
+        <nav class="route-page-nav" :aria-label="t.hobbies.routes">
+          <a v-if="activeRoute > 0" :href="`#route-${activeRoute}`" @click.prevent="openRoute(activeRoute - 1)"><ArrowLeft :size="18" aria-hidden="true" /> {{ t.hobbies.previousRoute }}</a>
+          <a v-if="activeRoute < cyclingRoutes.length - 1" :href="`#route-${activeRoute + 2}`" @click.prevent="openRoute(activeRoute + 1)">{{ t.hobbies.nextRoute }} <ArrowRight :size="18" aria-hidden="true" /></a>
+        </nav>
       </div>
     </main>
 
