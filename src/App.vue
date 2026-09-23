@@ -337,7 +337,7 @@ onUnmounted(() => {
 
 <template>
   <div class="app">
-    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home' }" :style="{ '--header-bg': themeColor }">
+    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home', 'home-topbar': view === 'home' }" :style="{ '--header-bg': themeColor }">
       <button class="logo" aria-label="Home" @click="goHome">N<span>.</span></button>
       <div class="language-picker">
         <button :class="{ active: language === 'sk' }" @click="setLanguage('sk')">SK</button>
@@ -346,7 +346,7 @@ onUnmounted(() => {
       </div>
     </header>
 
-    <main v-if="view === 'home'">
+    <main v-if="view === 'home'" class="home-page">
       <section class="profile container">
         <div class="profile-copy">
           <h1>{{ t.title }}</h1>

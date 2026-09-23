@@ -17,6 +17,7 @@ a { text-decoration: none; }
 ::selection { background: var(--acid); }
 .app { overflow: hidden; }
 .container { width: min(calc(100% - 40px), 1180px); margin-inline: auto; }
+.home-page .container, .topbar.home-topbar { max-width: 1060px; }
 .topbar { height: 64px; display: grid; grid-template-columns: 1fr 1fr; align-items: center; border-bottom: 1px solid var(--line); }
 .logo { width: fit-content; padding: 0; background: none; border: 0; font-size: 25px; font-weight: 900; letter-spacing: -0.1em; }
 .logo span { color: var(--violet); }
