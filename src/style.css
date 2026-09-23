@@ -192,12 +192,32 @@ a { text-decoration: none; }
 .cycling-routes-heading h3 { margin: 0; font-size: clamp(28px, 4vw, 44px); line-height: 1; letter-spacing: -.06em; }
 .cycling-routes-heading span { font: 800 11px ui-monospace, monospace; }
 .cycling-routes-list { display: grid; grid-auto-columns: minmax(190px, 220px); grid-auto-flow: column; gap: 16px; padding: 3px 8px 14px 2px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin; }
-.cycling-route-card { display: block; min-width: 0; overflow: hidden; background: var(--ink); border: 1px solid var(--ink); border-radius: 22px; box-shadow: 5px 5px var(--violet); scroll-snap-align: start; transition: transform 180ms ease; }
+.cycling-route-card { display: flex; min-width: 0; min-height: 230px; flex-direction: column; align-items: stretch; padding: 18px; text-align: left; background: var(--violet); border: 1px solid var(--ink); border-radius: 22px; box-shadow: 5px 5px var(--ink); scroll-snap-align: start; transition: transform 180ms ease; }
+.cycling-route-card:nth-child(3n+2) { background: var(--blue); }
+.cycling-route-card:nth-child(3n+3) { background: var(--pink); }
 .cycling-route-card:hover { transform: translateY(-4px); }
-.cycling-route-card img { display: block; width: 100%; aspect-ratio: .8; object-fit: contain; }
-.cycling-route-card > span { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 13px 12px 14px; color: white; }
-.cycling-route-card strong { font-size: 18px; letter-spacing: -.04em; white-space: nowrap; }
-.cycling-route-card small { font: 700 10px ui-monospace, monospace; white-space: nowrap; }
+.route-card-top, .route-card-action { display: flex; align-items: center; justify-content: space-between; gap: 8px; font: 800 10px ui-monospace, monospace; text-transform: uppercase; }
+.cycling-route-card > strong { margin-top: auto; font-size: 39px; line-height: 1; letter-spacing: -.07em; white-space: nowrap; }
+.cycling-route-card > strong small { font-size: 15px; letter-spacing: -.02em; }
+.route-card-meta { margin-top: 8px; font: 800 11px ui-monospace, monospace; white-space: nowrap; }
+.route-card-action { margin-top: 22px; padding-top: 12px; border-top: 1px solid currentColor; }
+.route-dialog { position: relative; width: min(100%, 620px); max-height: min(90vh, 740px); padding: 26px; overflow-y: auto; color: var(--ink); background: var(--paper); border: 1px solid var(--ink); border-radius: 30px; box-shadow: 10px 10px var(--acid); outline: none; }
+.route-dialog-heading, .route-dialog-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; font: 800 11px ui-monospace, monospace; text-transform: uppercase; }
+.route-dialog-heading { padding-right: 45px; }
+.route-dialog-heading small { font: inherit; }
+.route-swipe-surface { position: relative; min-height: 400px; margin-top: 20px; padding: 34px; overflow: hidden; background: var(--violet); border: 1px solid var(--ink); border-radius: 22px; touch-action: pan-y; user-select: none; transform: translateX(var(--drag-x)); transition: transform 180ms ease; }
+.route-swipe-surface.is-dragging { transition: none; }
+.route-swipe-index { position: absolute; top: -48px; right: 9px; color: #ffffff24; font-size: 270px; font-weight: 900; line-height: 1; letter-spacing: -.1em; pointer-events: none; }
+.route-swipe-surface h2 { position: relative; margin: 0 0 28px; font-size: clamp(34px, 8vw, 60px); line-height: .95; letter-spacing: -.07em; }
+.route-detail-stats { position: relative; display: grid; gap: 10px; }
+.route-detail-stats > div { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; padding: 12px 0; border-top: 1px solid #12131080; }
+.route-detail-stats small { font: 800 11px ui-monospace, monospace; text-transform: uppercase; }
+.route-detail-stats strong { font-size: clamp(22px, 5vw, 34px); line-height: 1; letter-spacing: -.06em; white-space: nowrap; }
+.route-detail-stats strong span { font-size: 15px; letter-spacing: 0; }
+.route-swipe-surface p { position: relative; margin: 19px 0 0; font: 700 11px ui-monospace, monospace; }
+.route-dialog-footer { margin-top: 20px; }
+.route-dialog-footer > span { text-align: center; }
+.route-nav-button { width: 44px; height: 44px; flex: 0 0 44px; color: white; background: var(--ink); border: 1px solid var(--ink); border-radius: 50%; font-size: 22px; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes cover-in { from { opacity: 0; transform: scale(1.035); } to { opacity: 1; transform: scale(1); } }
@@ -254,6 +274,12 @@ a { text-decoration: none; }
   .film-info h2 { font-size: 39px; }
   .cycling-routes { margin-top: 48px; }
   .cycling-routes-list { grid-auto-columns: minmax(175px, 61vw); gap: 12px; }
+  .route-dialog { padding: 17px; border-radius: 22px; }
+  .route-swipe-surface { min-height: 370px; padding: 25px 20px; }
+  .route-detail-stats > div { display: block; }
+  .route-detail-stats strong { display: block; margin-top: 6px; }
+  .route-nav-button { display: none; }
+  .route-dialog-footer { justify-content: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {

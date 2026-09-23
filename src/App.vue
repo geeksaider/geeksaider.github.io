@@ -14,6 +14,10 @@ const swipePointer = ref(null)
 const dragX = ref(0)
 const contactOpen = ref(false)
 const atPageEnd = ref(false)
+const routeOpen = ref(false)
+const activeRoute = ref(0)
+const routeDialog = ref(null)
+let routeTrigger = null
 
 const photos = [
   { src: '/photos/cycling-stats.jpg', tone: 'photo-one', alt: 'Nikita v meste' },
@@ -24,16 +28,16 @@ const photos = [
 ]
 
 const cyclingRoutes = [
-  { src: '/photos/routes/IMG_8948.JPG', distance: '59,3', time: '5 h 17 min' },
-  { src: '/photos/routes/IMG_8943.JPG', distance: '57,4', time: '4 h 46 min' },
-  { src: '/photos/routes/IMG_8949.JPG', distance: '56,95', time: '5 h 34 min' },
-  { src: '/photos/routes/IMG_8950.JPG', distance: '45,80', time: '6 h 36 min' },
-  { src: '/photos/routes/IMG_8944.JPG', distance: '40,5', time: '3 h 22 min' },
-  { src: '/photos/routes/IMG_8945.PNG', distance: '38,9', time: '4 h 25 min' },
-  { src: '/photos/routes/IMG_8953.JPG', distance: '37,11', time: '7 h 17 min' },
-  { src: '/photos/routes/IMG_8951.JPG', distance: '29,54', time: '3 h 15 min' },
-  { src: '/photos/routes/IMG_8946.PNG', distance: '18,0', time: '1 h 44 min' },
-  { src: '/photos/routes/IMG_8952.JPG', distance: '11,15', time: '1 h 36 min' },
+  { src: '/photos/routes/IMG_8948.JPG', distanceMi: 59.3, durationMinutes: 317 },
+  { src: '/photos/routes/IMG_8943.JPG', distanceMi: 57.4, durationMinutes: 286 },
+  { src: '/photos/routes/IMG_8949.JPG', distanceMi: 56.95, durationMinutes: 334 },
+  { src: '/photos/routes/IMG_8950.JPG', distanceMi: 45.8, durationMinutes: 396 },
+  { src: '/photos/routes/IMG_8944.JPG', distanceMi: 40.5, durationMinutes: 202 },
+  { src: '/photos/routes/IMG_8945.PNG', distanceMi: 38.9, durationMinutes: 265 },
+  { src: '/photos/routes/IMG_8953.JPG', distanceMi: 37.11, durationMinutes: 437 },
+  { src: '/photos/routes/IMG_8951.JPG', distanceMi: 29.54, durationMinutes: 195 },
+  { src: '/photos/routes/IMG_8946.PNG', distanceMi: 18, durationMinutes: 104 },
+  { src: '/photos/routes/IMG_8952.JPG', distanceMi: 11.15, durationMinutes: 96 },
 ]
 
 const content = {
@@ -86,7 +90,10 @@ const content = {
     },
     hobbies: {
       kicker: 'mimo profilu', title: 'Čomu sa venujem',
-      routes: 'Moje cyklotrasy', route: 'Cyklotrasa', openRoute: 'Otvoriť záznam trasy',
+      routes: 'Moje cyklotrasy', route: 'Cyklotrasa', openRoute: 'Podrobnosti',
+      distance: 'vzdialenosť', duration: 'čas', speed: 'priemerná rýchlosť',
+      speedNote: 'orientačne podľa vzdialenosti a času', swipeRoutes: 'potiahni pre ďalšiu trasu',
+      previousRoute: 'predchádzajúca trasa', nextRoute: 'ďalšia trasa', closeRoute: 'zatvoriť podrobnosti',
       items: [
         { number: '01', title: 'Práca', symbol: '▣', color: 'var(--acid)', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita v práci', note: 'rôzne skúsenosti', details: 'Pracoval som na viacerých pozíciách, od kuchára až po systémového analytika.' },
         { number: '02', title: 'Programovanie', symbol: '</>', color: 'var(--pink)', photo: '/photos/programming.jpg', photoAlt: 'Kód na obrazovke notebooku', note: 'kód a produkty' },
@@ -142,7 +149,10 @@ const content = {
     },
     hobbies: {
       kicker: 'beyond the profile', title: 'What I spend time on',
-      routes: 'My cycling routes', route: 'Cycling route', openRoute: 'Open route record',
+      routes: 'My cycling routes', route: 'Cycling route', openRoute: 'Details',
+      distance: 'distance', duration: 'time', speed: 'average speed',
+      speedNote: 'estimated from distance and time', swipeRoutes: 'swipe for the next route',
+      previousRoute: 'previous route', nextRoute: 'next route', closeRoute: 'close route details',
       items: [
         { number: '01', title: 'Work', symbol: '▣', color: 'var(--acid)', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita at work', note: 'different roles', details: 'I have worked in several roles, from cook to systems analyst.' },
         { number: '02', title: 'Programming', symbol: '</>', color: 'var(--pink)', photo: '/photos/programming.jpg', photoAlt: 'Code on a laptop screen', note: 'code & products' },
@@ -158,6 +168,43 @@ const t = computed(() => content[language.value])
 const currentMusic = computed(() => t.value.music.items[activeMusic.value])
 const currentFilm = computed(() => t.value.films.items[activeFilm.value])
 const currentHobby = computed(() => t.value.hobbies.items[activeHobby.value])
+const currentRoute = computed(() => cyclingRoutes[activeRoute.value])
+
+function formatRouteNumber(value) {
+  return new Intl.NumberFormat(language.value === 'sk' ? 'sk-SK' : 'en-US', {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  }).format(value)
+}
+
+function routeDistance(route) {
+  return formatRouteNumber(route.distanceMi * 1.609344)
+}
+
+function routeSpeed(route) {
+  return formatRouteNumber(route.distanceMi * 1.609344 * 60 / route.durationMinutes)
+}
+
+function routeDuration(route) {
+  return `${Math.floor(route.durationMinutes / 60)} h ${route.durationMinutes % 60} min`
+}
+
+function routeNumber(index) {
+  return String(index + 1).padStart(2, '0')
+}
+
+function openRoute(index, event) {
+  routeTrigger = event.currentTarget
+  activeRoute.value = index
+  routeOpen.value = true
+  nextTick(() => routeDialog.value?.focus())
+}
+
+function closeRoute() {
+  routeOpen.value = false
+  cancelSwipe()
+  nextTick(() => routeTrigger?.focus())
+}
 
 function setLanguage(value) {
   language.value = value
@@ -166,6 +213,7 @@ function setLanguage(value) {
 }
 
 function readHash() {
+  if (routeOpen.value) closeRoute()
   const hash = location.hash.slice(1)
   view.value = ['music', 'films', 'hobbies'].includes(hash) ? hash : 'home'
   nextTick(() => {
@@ -179,6 +227,7 @@ function openView(value) {
 }
 
 function goHome() {
+  if (routeOpen.value) closeRoute()
   history.pushState(null, '', location.pathname + location.search)
   view.value = 'home'
   nextTick(() => {
@@ -255,6 +304,7 @@ function moveInterest(type, direction) {
   if (type === 'music') activeMusic.value = (activeMusic.value + direction + t.value.music.items.length) % t.value.music.items.length
   if (type === 'films') moveFilm(direction)
   if (type === 'hobbies') activeHobby.value = (activeHobby.value + direction + t.value.hobbies.items.length) % t.value.hobbies.items.length
+  if (type === 'routes') activeRoute.value = (activeRoute.value + direction + cyclingRoutes.length) % cyclingRoutes.length
 }
 
 onMounted(() => {
@@ -416,10 +466,12 @@ onUnmounted(() => {
         <section v-if="activeHobby === 2" class="cycling-routes" :aria-label="t.hobbies.routes">
           <div class="cycling-routes-heading"><h3>{{ t.hobbies.routes }}</h3><span>{{ cyclingRoutes.length }}</span></div>
           <div class="cycling-routes-list">
-            <a v-for="route in cyclingRoutes" :key="route.src" class="cycling-route-card" :href="route.src" target="_blank" rel="noopener" :aria-label="`${t.hobbies.openRoute}: ${route.distance} mi, ${route.time}`">
-              <img :src="route.src" :alt="`${t.hobbies.route}: ${route.distance} mi, ${route.time}`" loading="lazy">
-              <span><strong>{{ route.distance }} mi</strong><small>{{ route.time }} ↗</small></span>
-            </a>
+            <button v-for="(route, index) in cyclingRoutes" :key="route.src" type="button" class="cycling-route-card" :aria-label="`${t.hobbies.openRoute}: ${t.hobbies.route} ${routeNumber(index)}, ${routeDistance(route)} km`" @click="openRoute(index, $event)">
+              <span class="route-card-top"><span>{{ t.hobbies.route }} / {{ routeNumber(index) }}</span><span>↗</span></span>
+              <strong>{{ routeDistance(route) }} <small>km</small></strong>
+              <span class="route-card-meta">{{ routeDuration(route) }} <span>·</span> ≈ {{ routeSpeed(route) }} km/h</span>
+              <span class="route-card-action">{{ t.hobbies.openRoute }} <span>→</span></span>
+            </button>
           </div>
         </section>
       </div>
@@ -430,6 +482,28 @@ onUnmounted(() => {
         <button class="modal-close" :aria-label="t.back" @click="contactOpen = false">×</button>
         <small>{{ t.socialHint }}</small><h2>{{ t.socialTitle }}</h2>
         <a v-for="social in t.socials" :key="social.label" :href="social.href" :target="social.href.startsWith('http') ? '_blank' : undefined" :rel="social.href.startsWith('http') ? 'noopener noreferrer' : undefined">{{ social.label }} <span>{{ social.value }} ↗</span></a>
+      </section>
+    </div>
+
+    <div v-if="routeOpen" class="modal-backdrop route-modal-backdrop" @click.self="closeRoute">
+      <section ref="routeDialog" class="route-dialog" role="dialog" aria-modal="true" :aria-label="`${t.hobbies.route} ${routeNumber(activeRoute)}`" tabindex="-1" @keydown.esc="closeRoute" @keydown.left="moveInterest('routes', -1)" @keydown.right="moveInterest('routes', 1)">
+        <button type="button" class="modal-close" :aria-label="t.hobbies.closeRoute" @click="closeRoute">×</button>
+        <div class="route-dialog-heading"><small>{{ t.hobbies.routes }}</small><span>{{ routeNumber(activeRoute) }} / {{ cyclingRoutes.length }}</span></div>
+        <div class="route-swipe-surface" :class="{ 'is-dragging': swipeType === 'routes' }" :style="{ '--drag-x': swipeType === 'routes' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'routes')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
+          <span class="route-swipe-index">{{ routeNumber(activeRoute) }}</span>
+          <h2>{{ t.hobbies.route }}</h2>
+          <div class="route-detail-stats">
+            <div><small>{{ t.hobbies.distance }}</small><strong>{{ routeDistance(currentRoute) }} <span>km</span></strong></div>
+            <div><small>{{ t.hobbies.duration }}</small><strong>{{ routeDuration(currentRoute) }}</strong></div>
+            <div><small>{{ t.hobbies.speed }}</small><strong>≈ {{ routeSpeed(currentRoute) }} <span>km/h</span></strong></div>
+          </div>
+          <p>{{ t.hobbies.speedNote }}</p>
+        </div>
+        <div class="route-dialog-footer">
+          <button type="button" class="route-nav-button" :aria-label="t.hobbies.previousRoute" @click="moveInterest('routes', -1)">←</button>
+          <span>{{ t.hobbies.swipeRoutes }}</span>
+          <button type="button" class="route-nav-button" :aria-label="t.hobbies.nextRoute" @click="moveInterest('routes', 1)">→</button>
+        </div>
       </section>
     </div>
   </div>
