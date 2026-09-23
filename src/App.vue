@@ -99,11 +99,11 @@ const content = {
     music: {
       title: 'Môj hudobný vkus',
       items: [
-        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02616d1121ab80e5f053e28a3d', spotify: 'https://open.spotify.com/track/52qHUftTZ4ypMKx1T7yDBk' },
-        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e022bb4bbf62bc82d2f4ce59397', spotify: 'https://open.spotify.com/track/3ZaEs1O8BG581qYPHpQ8d6' },
-        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e029d1f0a0a2f51944665bfc385', spotify: 'https://open.spotify.com/track/3LsKaCwIuiWcPxTOSZApmE' },
-        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02bce53a924b756cbaf8aa245c', spotify: 'https://open.spotify.com/track/144adL7pGHEWRwute2wxzZ' },
-        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e024232e3cf532af9835ea9d9a2', spotify: 'https://open.spotify.com/track/6m9YaHyWoW7h001KZTY2Pm' },
+        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/d9/c1/bc/d9c1bc18-bfb9-d70e-8e89-d6217cb398f8/19CRGIM10149.rgb.jpg/1200x1200bb.jpg', spotify: 'https://open.spotify.com/track/52qHUftTZ4ypMKx1T7yDBk' },
+        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/64/8f/5f/648f5f68-3ffa-e33d-39d0-50210803074f/196871388221.jpg/1200x1200bb.jpg', spotify: 'https://open.spotify.com/track/3ZaEs1O8BG581qYPHpQ8d6' },
+        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9f/9b/4c/9f9b4cbc-5910-51fb-8486-adf3b89bc973/886444594837.jpg/1200x1200bb.jpg', spotify: 'https://open.spotify.com/track/3LsKaCwIuiWcPxTOSZApmE' },
+        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/75/65/a6/7565a69a-4fc2-f2b9-69ae-53e603ccca16/884977028751.jpg/1200x1200bb.jpg', spotify: 'https://open.spotify.com/track/144adL7pGHEWRwute2wxzZ' },
+        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e8/41/7a/e8417a69-f04b-9e29-e077-b01c95ea6b56/06UMGIM11441.rgb.jpg/1200x1200bb.jpg', spotify: 'https://open.spotify.com/track/6m9YaHyWoW7h001KZTY2Pm' },
       ],
     },
     films: {
@@ -163,11 +163,11 @@ const content = {
     music: {
       title: 'My music taste',
       items: [
-        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02616d1121ab80e5f053e28a3d', spotify: 'https://open.spotify.com/track/52qHUftTZ4ypMKx1T7yDBk' },
-        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e022bb4bbf62bc82d2f4ce59397', spotify: 'https://open.spotify.com/track/3ZaEs1O8BG581qYPHpQ8d6' },
-        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e029d1f0a0a2f51944665bfc385', spotify: 'https://open.spotify.com/track/3LsKaCwIuiWcPxTOSZApmE' },
-        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02bce53a924b756cbaf8aa245c', spotify: 'https://open.spotify.com/track/144adL7pGHEWRwute2wxzZ' },
-        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e024232e3cf532af9835ea9d9a2', spotify: 'https://open.spotify.com/track/6m9YaHyWoW7h001KZTY2Pm' },
+        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/d9/c1/bc/d9c1bc18-bfb9-d70e-8e89-d6217cb398f8/19CRGIM10149.rgb.jpg/1200x1200bb.jpg', spotify: 'https://open.spotify.com/track/52qHUftTZ4ypMKx1T7yDBk' },
+        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/64/8f/5f/648f5f68-3ffa-e33d-39d0-50210803074f/196871388221.jpg/1200x1200bb.jpg', spotify: 'https://open.spotify.com/track/3ZaEs1O8BG581qYPHpQ8d6' },
+        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9f/9b/4c/9f9b4cbc-5910-51fb-8486-adf3b89bc973/886444594837.jpg/1200x1200bb.jpg', spotify: 'https://open.spotify.com/track/3LsKaCwIuiWcPxTOSZApmE' },
+        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music128/v4/75/65/a6/7565a69a-4fc2-f2b9-69ae-53e603ccca16/884977028751.jpg/1200x1200bb.jpg', spotify: 'https://open.spotify.com/track/144adL7pGHEWRwute2wxzZ' },
+        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e8/41/7a/e8417a69-f04b-9e29-e077-b01c95ea6b56/06UMGIM11441.rgb.jpg/1200x1200bb.jpg', spotify: 'https://open.spotify.com/track/6m9YaHyWoW7h001KZTY2Pm' },
       ],
     },
     films: {
