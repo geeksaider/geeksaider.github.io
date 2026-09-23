@@ -507,15 +507,11 @@ onUnmounted(() => {
             </article>
             <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in t.hobbies.items" :key="index" :class="{ active: index === activeHobby }"></i></div>
           </div>
-          <div class="hobby-side">
-            <div class="interest-copy">
-              <div class="interest-title-slot"><h2 :key="activeHobby">{{ t.hobbies.items[activeHobby].title }}</h2></div>
-              <div class="interest-meta-slot"><p :key="activeHobby" class="hobby-details">{{ t.hobbies.items[activeHobby].details }}</p></div>
-              <div class="hobby-actions">
-                <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
-                <button v-if="activeHobby === 2" class="routes-cta" type="button" @click="openRoutes">{{ t.hobbies.openRoute }}</button>
-              </div>
-            </div>
+          <div class="interest-copy">
+            <div class="interest-title-slot"><h2 :key="activeHobby">{{ t.hobbies.items[activeHobby].title }}</h2></div>
+            <div class="interest-meta-slot"><p :key="activeHobby">{{ t.hobbies.items[activeHobby].details }}</p></div>
+            <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
+            <button v-if="activeHobby === 2" class="routes-cta" type="button" @click="openRoutes">{{ t.hobbies.openRoute }}</button>
           </div>
         </div>
       </div>
