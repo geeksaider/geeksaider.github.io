@@ -49,7 +49,7 @@ const content = {
     contact: 'napísať mi',
     back: 'späť',
     dossier: {
-      label: 'osobný spis', title: 'Stručná správa', reveal: 'odkryť ďalší riadok', complete: 'spis odhalený', tap: 'klikni pre odkrytie', locked: 'zamknuté',
+      label: 'záznam 001', title: 'Osobný spis', reveal: 'odkryť ďalší riadok', complete: 'spis odhalený', tap: 'odkryť', locked: 'zamknuté',
       rows: [
         ['Meno', 'Nikita'],
         ['Vek', '20'],
@@ -108,7 +108,7 @@ const content = {
     meta: 'I built a website instead of writing a normal bio.',
     explore: 'choose a topic', scrollTop: 'back to top', contact: 'message me', back: 'back',
     dossier: {
-      label: 'personal file', title: 'Brief summary', reveal: 'reveal next line', complete: 'file revealed', tap: 'tap to reveal', locked: 'locked',
+      label: 'record 001', title: 'Personal file', reveal: 'reveal next line', complete: 'file revealed', tap: 'reveal', locked: 'locked',
       rows: [
         ['Name', 'Nikita'],
         ['Age', '20'],
@@ -237,7 +237,17 @@ function goHome() {
 }
 
 function updateScrollCue() {
-  atPageEnd.value = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 80
+  const topics = document.getElementById('topics')
+  if (!topics) {
+    atPageEnd.value = false
+    return
+  }
+  const viewportHeight = window.innerHeight
+  const remainingScroll = document.documentElement.scrollHeight - viewportHeight - window.scrollY
+  atPageEnd.value = window.scrollY > 32 && (
+    topics.getBoundingClientRect().top <= viewportHeight * 0.45 ||
+    remainingScroll <= Math.min(viewportHeight * 0.25, 140)
+  )
 }
 
 function scrollPage() {
