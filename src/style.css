@@ -192,6 +192,9 @@ a { text-decoration: none; }
 .interest-card .card-index { position: absolute; z-index: 2; top: 20px; left: 22px; font-size: 43px; font-weight: 900; letter-spacing: -.08em; }
 .music-interest-card img,
 .film-interest-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.music-interest-card { cursor: pointer; }
+.music-interest-card:focus-visible, .music-copy-link:focus-visible { outline: 3px solid currentColor; outline-offset: 5px; }
+.music-copy-link { display: block; width: fit-content; max-width: 100%; color: inherit; }
 .music-interest-card::after,
 .film-interest-card::after { position: absolute; inset: 0; content: ''; background: linear-gradient(180deg, #0008, transparent 28%, transparent 70%, #0009); pointer-events: none; }
 .film-interest-card b { position: absolute; z-index: 2; right: 20px; bottom: 18px; font: 800 12px ui-monospace, monospace; }

@@ -28,6 +28,7 @@ const contactOpen = ref(false)
 const socialModal = ref(null)
 const scrollCueUp = ref(false)
 let scrollIntentAnchorY = 0
+let musicSwipeEndedAt = 0
 const topicsGrid = ref(null)
 const topicScrollLeft = ref(0)
 const activeTopic = ref(0)
@@ -91,11 +92,11 @@ const content = {
     music: {
       title: 'Môj hudobný vkus',
       items: [
-        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg' },
-        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg' },
-        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: '/photos/covers/everyday.jpg' },
-        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://images.universal-music.de/img/assets/165/165942/4/1200/invaders-must-die-0602517955608.jpg' },
-        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/36/38/45/363845a9-dc46-1605-dce3-f41b1b11e97d/25UMGIM38812.rgb.jpg/1200x630wp-60.jpg' },
+        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg', spotify: 'https://open.spotify.com/track/52qHUftTZ4ypMKx1T7yDBk' },
+        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg', spotify: 'https://open.spotify.com/track/3ZaEs1O8BG581qYPHpQ8d6' },
+        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: '/photos/covers/everyday.jpg', spotify: 'https://open.spotify.com/track/3LsKaCwIuiWcPxTOSZApmE' },
+        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://images.universal-music.de/img/assets/165/165942/4/1200/invaders-must-die-0602517955608.jpg', spotify: 'https://open.spotify.com/track/144adL7pGHEWRwute2wxzZ' },
+        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/36/38/45/363845a9-dc46-1605-dce3-f41b1b11e97d/25UMGIM38812.rgb.jpg/1200x630wp-60.jpg', spotify: 'https://open.spotify.com/track/6m9YaHyWoW7h001KZTY2Pm' },
       ],
     },
     films: {
@@ -155,11 +156,11 @@ const content = {
     music: {
       title: 'My music taste',
       items: [
-        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg' },
-        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg' },
-        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: '/photos/covers/everyday.jpg' },
-        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://images.universal-music.de/img/assets/165/165942/4/1200/invaders-must-die-0602517955608.jpg' },
-        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/36/38/45/363845a9-dc46-1605-dce3-f41b1b11e97d/25UMGIM38812.rgb.jpg/1200x630wp-60.jpg' },
+        { title: 'Baby One More Time', artist: 'Travis', color: '#cbbca4', cover: 'https://i.ebayimg.com/images/g/Y8QAAOSw7fBhFq8Y/s-l1200.jpg', spotify: 'https://open.spotify.com/track/52qHUftTZ4ypMKx1T7yDBk' },
+        { title: 'I Smoked Away My Brain', artist: 'A$AP Rocky feat. Imogen Heap & Clams Casino', color: '#aaa9a6', cover: 'https://i.pinimg.com/736x/04/82/f9/0482f940e8df6a89ee541d50575e629f.jpg', spotify: 'https://open.spotify.com/track/3ZaEs1O8BG581qYPHpQ8d6' },
+        { title: 'Everyday', artist: 'A$AP Rocky feat. Rod Stewart, Miguel & Mark Ronson', color: '#d9d5ce', cover: '/photos/covers/everyday.jpg', spotify: 'https://open.spotify.com/track/3LsKaCwIuiWcPxTOSZApmE' },
+        { title: 'Omen', artist: 'The Prodigy', color: '#ff6b49', cover: 'https://images.universal-music.de/img/assets/165/165942/4/1200/invaders-must-die-0602517955608.jpg', spotify: 'https://open.spotify.com/track/144adL7pGHEWRwute2wxzZ' },
+        { title: "It Can't Come Quickly Enough", artist: 'Scissor Sisters', color: '#67d9ff', cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/36/38/45/363845a9-dc46-1605-dce3-f41b1b11e97d/25UMGIM38812.rgb.jpg/1200x630wp-60.jpg', spotify: 'https://open.spotify.com/track/6m9YaHyWoW7h001KZTY2Pm' },
       ],
     },
     films: {
@@ -388,18 +389,21 @@ function photoPosition(index) {
 
 function startSwipe(event, type) {
   if (event.pointerType === 'mouse' && event.button !== 0) return
-  event.preventDefault()
+  if (type !== 'music') event.preventDefault()
   window.getSelection()?.removeAllRanges()
   swipeStart.value = event.clientX
   swipeType.value = type
   swipePointer.value = event.pointerId
   dragX.value = 0
-  event.currentTarget.setPointerCapture?.(event.pointerId)
+  if (type !== 'music') event.currentTarget.setPointerCapture?.(event.pointerId)
 }
 
 function updateSwipe(event) {
   if (swipeStart.value === null || event.pointerId !== swipePointer.value) return
   dragX.value = Math.max(-140, Math.min(140, event.clientX - swipeStart.value))
+  if (swipeType.value === 'music' && Math.abs(dragX.value) > 8 && !event.currentTarget.hasPointerCapture?.(event.pointerId)) {
+    event.currentTarget.setPointerCapture?.(event.pointerId)
+  }
 }
 
 function cancelSwipe() {
@@ -418,9 +422,14 @@ function finishSwipe(event) {
   if (Math.abs(distance) <= 40) return
 
   const direction = distance < 0 ? 1 : -1
+  if (type === 'music') musicSwipeEndedAt = Date.now()
   if (type === 'photos') activePhoto.value = (activePhoto.value + direction + photos.length) % photos.length
   else if (type === 'routes') moveRoute(direction)
   else moveInterest(type, direction)
+}
+
+function onMusicCardClick(event, index) {
+  if (index !== activeMusic.value || Date.now() - musicSwipeEndedAt < 350) event.preventDefault()
 }
 
 function moveInterest(type, direction) {
@@ -521,14 +530,14 @@ onUnmounted(() => {
         <div class="wrapped-heading"><h1>{{ t.music.title }}</h1></div>
         <div class="interest-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'music' }" :style="{ '--drag-x': swipeType === 'music' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'music')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
-            <div v-for="(item, index) in t.music.items" :key="index" class="interest-card music-interest-card" :class="{ 'is-active': index === activeMusic, 'is-near': (index - activeMusic + t.music.items.length) % t.music.items.length <= 2 }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeMusic + t.music.items.length) % t.music.items.length}` }">
+            <a v-for="(item, index) in t.music.items" :key="index" class="interest-card music-interest-card" :class="{ 'is-active': index === activeMusic, 'is-near': (index - activeMusic + t.music.items.length) % t.music.items.length <= 2 }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeMusic + t.music.items.length) % t.music.items.length}` }" :href="item.spotify" target="_blank" rel="noopener noreferrer" :tabindex="index === activeMusic ? 0 : -1" :aria-label="`${item.title} — ${item.artist}, Spotify`" draggable="false" @click="onMusicCardClick($event, index)">
               <span class="card-index">0{{ index + 1 }}</span><img :src="item.cover" :alt="`${item.title} — ${item.artist}`" draggable="false" @error="$event.currentTarget.style.display = 'none'">
-            </div>
+            </a>
             <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in t.music.items" :key="index" :class="{ active: index === activeMusic }"></i></div>
           </div>
           <div class="interest-copy">
-            <div class="interest-title-slot"><h2 :key="activeMusic">{{ currentMusic.title }}</h2></div>
-            <div class="interest-meta-slot"><p :key="activeMusic">{{ currentMusic.artist }}</p></div>
+            <div class="interest-title-slot"><a :key="activeMusic" class="music-copy-link" :href="currentMusic.spotify" target="_blank" rel="noopener noreferrer" :aria-label="`${currentMusic.title} — ${currentMusic.artist}, Spotify`"><h2>{{ currentMusic.title }}</h2></a></div>
+            <div class="interest-meta-slot"><a :key="activeMusic" class="music-copy-link" :href="currentMusic.spotify" target="_blank" rel="noopener noreferrer" :aria-label="`${currentMusic.title} — ${currentMusic.artist}, Spotify`"><p>{{ currentMusic.artist }}</p></a></div>
             <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('music', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('music', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
           </div>
         </div>
