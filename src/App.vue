@@ -19,6 +19,9 @@ const swipePointer = ref(null)
 const dragX = ref(0)
 const contactOpen = ref(false)
 const atPageEnd = ref(false)
+const topicsGrid = ref(null)
+const topicScrollLeft = ref(0)
+const scrollPositions = { home: 0, hobbies: 0, music: 0, films: 0, routes: 0 }
 
 const photos = [
   { src: '/photos/cycling-stats.jpg', tone: 'photo-one', alt: 'Nikita v meste' },
@@ -206,7 +209,7 @@ function setLanguage(value) {
 function readHash() {
   const hash = location.hash.slice(1)
   const routeMatch = /^route-(\d+)$/.exec(hash)
-  const fromRoutes = view.value === 'routes'
+  const previousView = view.value
   if (routeMatch && Number(routeMatch[1]) >= 1 && Number(routeMatch[1]) <= cyclingRoutes.length) {
     activeRoute.value = Number(routeMatch[1]) - 1
     activeHobby.value = 2
@@ -218,26 +221,34 @@ function readHash() {
     view.value = ['music', 'films', 'hobbies'].includes(hash) ? hash : 'home'
   }
   nextTick(() => {
-    if (!(fromRoutes && view.value === 'routes')) window.scrollTo(0, 0)
+    if (previousView !== view.value) {
+      window.scrollTo(0, scrollPositions[view.value] || 0)
+      if (view.value === 'home' && topicsGrid.value) topicsGrid.value.scrollLeft = topicScrollLeft.value
+    }
     updateScrollCue()
   })
 }
 
 function openView(value) {
+  scrollPositions[view.value] = window.scrollY
+  if (view.value === 'home' && topicsGrid.value) topicScrollLeft.value = topicsGrid.value.scrollLeft
   location.hash = value
 }
 
 function goHome() {
+  scrollPositions[view.value] = window.scrollY
   history.pushState(null, '', location.pathname + location.search)
   view.value = 'home'
   nextTick(() => {
-    window.scrollTo(0, 0)
+    window.scrollTo(0, scrollPositions.home)
+    if (topicsGrid.value) topicsGrid.value.scrollLeft = topicScrollLeft.value
     updateScrollCue()
   })
 }
 
 function goBack() {
   if (view.value === 'routes') {
+    scrollPositions.routes = window.scrollY
     location.hash = 'hobbies'
   } else {
     goHome()
@@ -245,6 +256,7 @@ function goBack() {
 }
 
 function openRoutes() {
+  scrollPositions.hobbies = window.scrollY
   location.hash = 'routes'
 }
 
@@ -399,13 +411,14 @@ onUnmounted(() => {
       <section id="topics" class="topics container">
         <div class="topic-heading"><h2>{{ t.explore }}</h2></div>
 
-        <div class="topic-grid">
+        <div class="topic-grid" ref="topicsGrid" @scroll="topicScrollLeft = $event.target.scrollLeft">
           <button v-for="name in ['music', 'films', 'hobbies']" :key="name" class="topic-card" :class="`topic-${name}`" @click="openView(name)">
             <ArrowUpRight class="topic-open-icon" :size="22" aria-hidden="true" />
             <component :is="topicIcons[name]" class="topic-icon" :size="110" :stroke-width="1.5" aria-hidden="true" />
             <h3>{{ t.menu[name].title }}</h3>
           </button>
         </div>
+        <div class="topic-swipe-cue" aria-hidden="true"><span></span><span></span><span></span><ArrowRight :size="20" /></div>
       </section>
     </main>
 
@@ -417,6 +430,7 @@ onUnmounted(() => {
             <div v-for="(item, index) in t.music.items" :key="item.title" class="interest-card music-interest-card" :class="{ 'is-active': index === activeMusic }" :style="{ '--card-color': item.color, '--card-offset': `${(index - activeMusic + t.music.items.length) % t.music.items.length}` }">
               <span class="card-index">0{{ index + 1 }}</span><img :src="item.cover" :alt="`${item.title} — ${item.artist}`" draggable="false" @error="$event.currentTarget.style.display = 'none'">
             </div>
+            <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in t.music.items" :key="index" :class="{ active: index === activeMusic }"></i></div>
           </div>
           <div class="interest-copy">
             <div class="interest-title-slot"><h2 v-for="(item, index) in t.music.items" :key="item.title" :class="{ 'is-active': index === activeMusic }" :aria-hidden="index !== activeMusic">{{ item.title }}</h2></div>
@@ -437,6 +451,7 @@ onUnmounted(() => {
               <img :src="item.cover" :alt="item.title" draggable="false" @error="$event.currentTarget.style.display = 'none'">
               <b>{{ item.type }}</b>
             </div>
+            <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in t.films.items" :key="index" :class="{ active: index === activeFilm }"></i></div>
           </div>
           <div class="interest-copy">
             <div class="interest-title-slot"><h2 v-for="(item, index) in t.films.items" :key="item.title" :class="{ 'is-active': index === activeFilm }" :aria-hidden="index !== activeFilm">{{ item.title }}</h2></div>
@@ -463,16 +478,13 @@ onUnmounted(() => {
               <component :is="hobbyIcons[index]" class="hobby-symbol" :size="112" :stroke-width="1.5" aria-hidden="true" />
               <h2>{{ item.title }}</h2>
             </article>
-            <nav class="hobby-card-nav" :aria-label="t.menu.hobbies.title" @pointerdown.stop @pointerup.stop @pointercancel.stop>
-              <button type="button" :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="19" aria-hidden="true" /></button>
-              <span>{{ activeHobby + 1 }} / {{ t.hobbies.items.length }}</span>
-              <button type="button" :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="19" aria-hidden="true" /></button>
-            </nav>
+            <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in t.hobbies.items" :key="index" :class="{ active: index === activeHobby }"></i></div>
           </div>
           <div class="hobby-side">
             <div class="interest-copy">
               <div class="interest-title-slot"><h2 v-for="(item, index) in t.hobbies.items" :key="item.title" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.title }}</h2></div>
               <div class="interest-meta-slot"><p v-for="(item, index) in t.hobbies.items" :key="item.title" class="hobby-details" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.details }}</p></div>
+              <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
               <button v-if="activeHobby === 2" class="routes-cta" type="button" @click="openRoutes">{{ t.hobbies.openRoute }} <ArrowUpRight :size="20" aria-hidden="true" /></button>
             </div>
           </div>
@@ -484,8 +496,11 @@ onUnmounted(() => {
       <div class="container inner-page">
         <div class="route-overview-heading"><span>{{ t.hobbies.routes }}</span><strong>{{ routeNumber(activeRoute) }} / {{ cyclingRoutes.length }}</strong></div>
         <div class="route-carousel-layout">
-          <div class="route-swipe-card" :class="{ 'is-dragging': swipeType === 'routes' }" :style="{ '--drag-x': swipeType === 'routes' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'routes')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
-            <img :src="cyclingRoutes[activeRoute].src" :alt="`${routeLabel(cyclingRoutes[activeRoute], activeRoute)} — ${routeDistance(cyclingRoutes[activeRoute])} km`" draggable="false">
+          <div class="route-stack" :class="{ 'is-dragging': swipeType === 'routes' }" :style="{ '--drag-x': swipeType === 'routes' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'routes')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
+            <article v-for="(route, index) in cyclingRoutes" :key="route.src" class="interest-card route-interest-card" :class="{ 'is-active': index === activeRoute, 'is-near': (index - activeRoute + cyclingRoutes.length) % cyclingRoutes.length <= 2 }" :style="{ '--card-offset': `${(index - activeRoute + cyclingRoutes.length) % cyclingRoutes.length}` }">
+              <img v-if="(index - activeRoute + cyclingRoutes.length) % cyclingRoutes.length <= 2" :src="route.src" :alt="`${routeLabel(route, index)} — ${routeDistance(route)} km`" draggable="false">
+            </article>
+            <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in cyclingRoutes" :key="index" :class="{ active: index === activeRoute }"></i></div>
           </div>
           <div class="route-carousel-copy">
             <small>{{ t.hobbies.route }} {{ routeNumber(activeRoute) }}</small>
