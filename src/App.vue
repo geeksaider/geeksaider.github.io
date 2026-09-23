@@ -170,6 +170,18 @@ const t = computed(() => content[language.value])
 const currentMusic = computed(() => t.value.music.items[activeMusic.value])
 const currentFilm = computed(() => t.value.films.items[activeFilm.value])
 
+function textColorFor(background) {
+  const channels = background.slice(1).match(/.{2}/g).map((channel) => {
+    const value = parseInt(channel, 16) / 255
+    return value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4
+  })
+  const luminance = channels[0] * .2126 + channels[1] * .7152 + channels[2] * .0722
+  return luminance < .2 ? '#fff' : '#121310'
+}
+
+const currentMusicInk = computed(() => textColorFor(currentMusic.value.color))
+const currentFilmInk = computed(() => textColorFor(currentFilm.value.color))
+
 function formatRouteNumber(value) {
   return new Intl.NumberFormat(language.value === 'sk' ? 'sk-SK' : 'en-US', {
     minimumFractionDigits: 1,
@@ -368,7 +380,7 @@ onUnmounted(() => {
 
 <template>
   <div class="app">
-    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home', 'home-topbar': view === 'home', 'color-topbar': view === 'music' || view === 'films' }" :style="view === 'music' ? { '--active': currentMusic.color } : view === 'films' ? { '--active': currentFilm.color } : undefined">
+    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home', 'home-topbar': view === 'home', 'color-topbar': view === 'music' || view === 'films' }" :style="view === 'music' ? { '--active': currentMusic.color, '--page-ink': currentMusicInk } : view === 'films' ? { '--active': currentFilm.color, '--page-ink': currentFilmInk } : undefined">
       <button v-if="view === 'home'" class="logo" aria-label="Home" @click="goHome">N<span>.</span></button>
       <button v-else class="back-button" @click="goBack"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
       <div class="language-picker">
@@ -430,7 +442,7 @@ onUnmounted(() => {
       </section>
     </main>
 
-    <main v-else-if="view === 'music'" class="wrapped-page music-page" :style="{ '--active': currentMusic.color }">
+    <main v-else-if="view === 'music'" class="wrapped-page music-page" :style="{ '--active': currentMusic.color, '--page-ink': currentMusicInk }">
       <div class="container inner-page">
         <div class="wrapped-heading"><h1>{{ t.music.title }}</h1></div>
         <div class="interest-layout">
@@ -449,7 +461,7 @@ onUnmounted(() => {
       </div>
     </main>
 
-    <main v-else-if="view === 'films'" class="wrapped-page films-page" :style="{ '--active': currentFilm.color }">
+    <main v-else-if="view === 'films'" class="wrapped-page films-page" :style="{ '--active': currentFilm.color, '--page-ink': currentFilmInk }">
       <div class="container inner-page">
         <div class="wrapped-heading"><h1>{{ t.films.title }}</h1></div>
         <div class="interest-layout">
@@ -492,8 +504,10 @@ onUnmounted(() => {
             <div class="interest-copy">
               <div class="interest-title-slot"><h2 :key="activeHobby">{{ t.hobbies.items[activeHobby].title }}</h2></div>
               <div class="interest-meta-slot"><p :key="activeHobby" class="hobby-details">{{ t.hobbies.items[activeHobby].details }}</p></div>
-              <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
-              <button v-if="activeHobby === 2" class="routes-cta" type="button" @click="openRoutes">{{ t.hobbies.openRoute }}</button>
+              <div class="hobby-actions">
+                <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
+                <button v-if="activeHobby === 2" class="routes-cta" type="button" @click="openRoutes">{{ t.hobbies.openRoute }}</button>
+              </div>
             </div>
           </div>
         </div>
