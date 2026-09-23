@@ -21,6 +21,7 @@ const contactOpen = ref(false)
 const atPageEnd = ref(false)
 const topicsGrid = ref(null)
 const topicScrollLeft = ref(0)
+const activeTopic = ref(0)
 const scrollPositions = { home: 0, hobbies: 0, music: 0, films: 0, routes: 0 }
 
 const photos = [
@@ -265,12 +266,24 @@ function updateScrollCue() {
     atPageEnd.value = false
     return
   }
-  const viewportHeight = window.innerHeight
-  const remainingScroll = document.documentElement.scrollHeight - viewportHeight - window.scrollY
-  atPageEnd.value = window.scrollY > 32 && (
-    topics.getBoundingClientRect().top <= viewportHeight * 0.45 ||
-    remainingScroll <= Math.min(viewportHeight * 0.25, 140)
-  )
+  atPageEnd.value = window.scrollY > window.innerHeight * 0.5
+}
+
+function updateTopicPosition(event) {
+  const grid = event.target
+  topicScrollLeft.value = grid.scrollLeft
+  const card = grid.querySelector('.topic-card')
+  if (!card) return
+  const step = card.getBoundingClientRect().width + parseFloat(getComputedStyle(grid).gap || 0)
+  activeTopic.value = Math.max(0, Math.min(2, Math.round(grid.scrollLeft / step)))
+}
+
+function scrollToTopic(index) {
+  const grid = topicsGrid.value
+  const card = grid?.querySelector('.topic-card')
+  if (!card) return
+  const step = card.getBoundingClientRect().width + parseFloat(getComputedStyle(grid).gap || 0)
+  grid.scrollTo({ left: index * step, behavior: 'smooth' })
 }
 
 function scrollPage() {
@@ -406,14 +419,14 @@ onUnmounted(() => {
       <section id="topics" class="topics container">
         <div class="topic-heading"><h2>{{ t.explore }}</h2></div>
 
-        <div class="topic-grid" ref="topicsGrid" @scroll="topicScrollLeft = $event.target.scrollLeft">
+        <div class="topic-grid" ref="topicsGrid" @scroll="updateTopicPosition">
           <button v-for="name in ['music', 'films', 'hobbies']" :key="name" class="topic-card" :class="`topic-${name}`" @click="openView(name)">
             <ArrowUpRight class="topic-open-icon" :size="22" aria-hidden="true" />
             <component :is="topicIcons[name]" class="topic-icon" :size="110" :stroke-width="1.5" aria-hidden="true" />
             <h3>{{ t.menu[name].title }}</h3>
           </button>
         </div>
-        <div class="topic-swipe-cue" aria-hidden="true"><span></span><span></span><span></span><ArrowRight :size="20" /></div>
+        <div class="topic-swipe-cue" :aria-label="t.explore"><button v-for="(name, index) in ['music', 'films', 'hobbies']" :key="name" type="button" :class="{ active: index === activeTopic }" :aria-label="t.menu[name].title" :aria-current="index === activeTopic ? 'true' : undefined" @click="scrollToTopic(index)"></button></div>
       </section>
     </main>
 
@@ -460,7 +473,7 @@ onUnmounted(() => {
     <main v-else-if="view === 'hobbies'" class="wrapped-page hobbies-page">
       <div class="container inner-page">
         <div class="wrapped-heading"><h1>{{ t.hobbies.title }}</h1></div>
-        <div class="interest-layout hobbies-layout" :class="{ 'is-cycling': activeHobby === 2 }">
+        <div class="interest-layout hobbies-layout">
           <div class="interest-stack" :class="{ 'is-dragging': swipeType === 'hobbies' }" :style="{ '--drag-x': swipeType === 'hobbies' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'hobbies')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
             <article
               v-for="(item, index) in t.hobbies.items"

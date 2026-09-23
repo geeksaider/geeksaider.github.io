@@ -19,7 +19,7 @@ a { text-decoration: none; }
 .app :is(.language-picker button, .back-button, .facts-heading, .fact-note, .topic-heading, .topic-card h3, .wrapped-heading h1, .hobby-interest-card h2, .film-interest-card b) { text-transform: lowercase; }
 .container { width: min(calc(100% - 40px), 1060px); margin-inline: auto; }
 .topbar { height: 64px; display: grid; grid-template-columns: 1fr 1fr; align-items: center; border-bottom: 1px solid var(--line); }
-.topbar.color-topbar { width: 100%; padding-inline: max(20px, calc((100vw - 1060px) / 2)); background: var(--active); border-bottom: 0; }
+.topbar.color-topbar { width: 100%; padding-inline: max(20px, calc((100vw - 1060px) / 2)); background: var(--active); border-bottom: 0; transition: background 350ms ease; }
 .logo { width: fit-content; padding: 0; background: none; border: 0; font-size: 25px; font-weight: 900; letter-spacing: -0.1em; }
 .logo span { color: var(--violet); }
 .language-picker { justify-self: end; display: flex; align-items: center; gap: 4px; font: 10px ui-monospace, monospace; }
@@ -233,10 +233,10 @@ a { text-decoration: none; }
   .topic-heading h2 { font-size: 49px; }
   .topic-grid { display: flex; width: calc(100% + 15px); gap: 12px; padding: 4px 15px 12px 0; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
   .topic-card { flex: 0 0 calc(100vw - 52px); min-height: min(52svh, 340px); border-radius: 25px; scroll-snap-align: start; }
-  .topic-swipe-cue { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 14px; }
-  .topic-swipe-cue span { width: 6px; height: 6px; background: var(--ink); border-radius: 50%; opacity: .3; }
-  .topic-swipe-cue span:first-child { width: 18px; border-radius: 99px; opacity: 1; }
-  .topic-swipe-cue svg { margin-left: 12px; animation: next-topic 1.6s ease-in-out infinite; }
+  .topic-swipe-cue { display: flex; align-items: center; justify-content: center; gap: 2px; margin-top: 4px; }
+  .topic-swipe-cue button { width: 32px; height: 32px; padding: 0; background: none; border: 0; }
+  .topic-swipe-cue button::after { display: block; width: 7px; height: 7px; margin: auto; content: ''; background: var(--ink); border-radius: 50%; opacity: .3; transition: width 180ms ease, opacity 180ms ease; }
+  .topic-swipe-cue button.active::after { width: 20px; border-radius: 99px; opacity: 1; }
   .wrapped-page { min-height: calc(100svh - 62px - env(safe-area-inset-top, 0px)); }
   .inner-page { display: flex; min-height: calc(100svh - 62px - env(safe-area-inset-top, 0px)); flex-direction: column; justify-content: flex-start; padding-top: 24px; padding-bottom: max(18px, env(safe-area-inset-bottom, 0px)); }
   .back-button { padding: 8px 12px; }
@@ -245,8 +245,7 @@ a { text-decoration: none; }
   .music-layout { grid-template-columns: 1fr; gap: 34px; margin-top: 38px; }
   .interest-layout { grid-template-columns: 1fr; gap: 22px; margin-top: 20px; }
   .hobby-side { order: 0; padding-top: 0; }
-  .hobbies-layout.is-cycling .hobby-side { order: -1; }
-  .interest-stack { width: min(100%, 310px, max(190px, calc((100svh - 320px - env(safe-area-inset-top, 0px)) * .7))); justify-self: center; }
+  .interest-stack { width: min(100%, 310px); justify-self: center; }
   .interest-card:not(.is-active) { transform: translateY(calc(var(--card-offset) * 6px)) scale(calc(1 - var(--card-offset) * .045)) rotate(calc(var(--card-offset) * 2deg)); }
   .swipe-indicator { position: absolute; z-index: 8; right: 0; bottom: -25px; left: 0; display: flex; align-items: center; justify-content: center; gap: 5px; pointer-events: none; }
   .swipe-indicator i { width: 6px; height: 6px; background: var(--ink); border-radius: 50%; opacity: .28; }
@@ -254,7 +253,7 @@ a { text-decoration: none; }
   .interest-copy h2 { margin: 0 0 8px; font-size: clamp(30px, 8vw, 40px); line-height: 1; }
   .interest-copy p { font-size: 15px; }
   .hobby-details { margin-top: 0 !important; font-size: 15px !important; }
-  .routes-cta { min-height: 46px; margin-top: 14px; padding: 10px 16px; font-size: 13px; }
+  .routes-cta { min-height: 54px; margin-top: 18px; padding: 11px 18px; font-size: 17px; }
   .card-controls { display: none; }
   .album-card { width: min(100%, 390px); }
   .track-info h2 { font-size: 42px; }
@@ -265,20 +264,12 @@ a { text-decoration: none; }
   .film-card { grid-template-columns: 1fr; gap: 40px; }
   .film-poster { width: min(100%, 300px); justify-self: center; }
   .film-info h2 { font-size: 39px; }
-  .route-carousel-layout { grid-template-columns: 1fr; gap: 22px; margin-top: 20px; }
-  .route-stack { width: min(100%, 310px, max(190px, calc((100svh - 320px - env(safe-area-inset-top, 0px)) * .7))); }
+  .route-carousel-layout { grid-template-columns: 1fr; gap: 44px; margin-top: 20px; }
+  .route-stack { width: min(100%, 310px); justify-self: center; }
   .route-carousel-copy h2 { margin: 0 0 12px; font-size: clamp(30px, 8vw, 40px); }
   .route-metrics > div { min-height: 82px; gap: 10px; padding: 10px; }
   .route-metrics span { font-size: 9px; }
   .route-metrics strong { font-size: 16px; }
-}
-
-@keyframes next-topic { 50% { transform: translateX(9px); } }
-
-@media (max-width: 620px) and (max-height: 740px) {
-  .interest-stack, .route-stack { width: min(100%, 245px, max(175px, calc((100svh - 340px - env(safe-area-inset-top, 0px)) * .66))); }
-  .interest-layout { gap: 16px; }
-  .hobby-details { font-size: 14px !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
