@@ -261,10 +261,14 @@ body.modal-open { overflow: hidden; }
 .social-modal a:nth-child(even) { background: var(--red); box-shadow: var(--shadow-sm) var(--ink); }
 .social-modal a:nth-child(even):hover { box-shadow: var(--shadow-md) var(--ink); }
 .social-label { display: inline-flex; align-items: center; gap: 12px; min-width: 0; }
-.social-name { font-weight: 850; }
+.social-name { font-weight: 850; white-space: nowrap; }
 .social-icon { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; background: #fff; border: 0; border-radius: 50%; overflow: hidden; }
 .social-icon img, .social-icon svg { display: block; width: 22px; height: 22px; }
-.social-value { font: 700 12px ui-monospace, monospace; opacity: .9; }
+.social-value { min-width: 0; font: 700 12px ui-monospace, monospace; opacity: .9; overflow-wrap: anywhere; text-align: right; }
+@media (max-width: 540px) {
+  .social-modal a[href^="mailto:"] { flex-wrap: wrap; }
+  .social-modal a[href^="mailto:"] .social-value { flex-basis: 100%; padding-left: 52px; text-align: left; }
+}
 .modal-close { position: absolute; top: 15px; right: 18px; display: grid; width: 52px; height: 52px; place-items: center; color: white; background: var(--ink); border: 1px solid var(--ink); border-radius: 50%; box-shadow: var(--shadow-sm) var(--red); transition: transform 180ms ease, box-shadow 180ms ease; }
 .modal-close:hover { transform: translateY(3px); box-shadow: var(--shadow-sm) var(--red); }
 .modal-close:active { transform: translateY(5px); box-shadow: 1px 1px var(--red); }
