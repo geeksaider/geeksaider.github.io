@@ -47,7 +47,7 @@ const cyclingRoutes = [
   { src: '/photos/routes/IMG_8953.JPG', distanceMi: 38.9, durationMinutes: 265, oneWay: true, places: { sk: ['Chimki', 'zelený okruh'], en: ['Khimki', 'green ring'] } },
   { src: '/photos/routes/IMG_8951.JPG', distanceMi: 29.54, durationMinutes: 195, roundTrip: true, places: { sk: ['Zvolen', 'Banská Bystrica'], en: ['Zvolen', 'Banská Bystrica'] } },
   { src: '/photos/routes/IMG_8975.JPG', distanceMi: 18, durationMinutes: 104, places: { sk: 'okres Zvolen loop', en: 'Zvolen district loop' } },
-  { src: '/photos/routes/IMG_8952.JPG', distanceMi: 11.15, durationMinutes: 96, roundTrip: true, places: { sk: ['Antalya, Turecko', 'cyklovýlet'], en: ['Antalya, Turkey', 'bike ride'] } },
+  { src: '/photos/routes/IMG_8952.JPG', distanceMi: 11.15, durationMinutes: 96, roundTrip: true, places: { sk: ['Antalya', 'cyklovýlet'], en: ['Antalya', 'bike ride'] } },
 ]
 
 const content = {
@@ -261,9 +261,9 @@ function setLanguage(value) {
   localStorage.setItem('profile-language', value)
 }
 
-function restoreViewPosition(targetView) {
+function restoreViewPosition(targetView, overrideTop = null) {
   nextTick(() => requestAnimationFrame(() => {
-    window.scrollTo({ top: scrollPositions[targetView] || 0, behavior: 'instant' })
+    window.scrollTo({ top: overrideTop ?? scrollPositions[targetView] ?? 0, behavior: 'instant' })
     if (targetView === 'home' && topicsGrid.value) topicsGrid.value.scrollTo({ left: topicScrollLeft.value, behavior: 'instant' })
     updateScrollCue()
   }))
@@ -283,7 +283,10 @@ function readHash() {
   } else {
     view.value = ['music', 'films', 'hobbies'].includes(hash) ? hash : 'home'
   }
-  if (previousView !== view.value) restoreViewPosition(view.value)
+  if (previousView !== view.value) {
+    const mobileRoutesBack = previousView === 'routes' && view.value === 'hobbies' && matchMedia('(max-width: 620px)').matches
+    restoreViewPosition(view.value, mobileRoutesBack ? 0 : null)
+  }
 }
 
 function openView(value) {
