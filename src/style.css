@@ -156,7 +156,8 @@ a { text-decoration: none; }
 
 .hobbies-page { background: var(--paper); }
 .hobbies-layout { margin-top: 32px; }
-.routes-cta { display: inline-flex; min-height: 54px; align-items: center; justify-content: center; margin-top: 20px; padding: 10px 20px; color: white; background: var(--violet); border: 1px solid var(--ink); border-radius: 999px; box-shadow: 4px 4px var(--acid), 4px 4px 0 1px var(--ink); font-size: 18px; font-weight: 850; }
+.routes-cta { display: inline-flex; width: max-content; max-width: 100%; min-height: 54px; align-items: center; justify-content: center; gap: 10px; margin-top: 20px; padding: 10px 20px; color: white; background: var(--violet); border: 1px solid var(--ink); border-radius: 999px; box-shadow: 4px 4px var(--acid), 4px 4px 0 1px var(--ink); font-size: 18px; font-weight: 850; }
+.routes-cta + .card-controls { margin-top: 24px; }
 .routes-cta:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px var(--acid), 6px 6px 0 1px var(--ink); }
 .hobby-interest-card { color: white; background: var(--card-color); }
 .hobby-interest-card.is-light { color: var(--ink); }
@@ -249,7 +250,7 @@ a { text-decoration: none; }
   .swipe-indicator i.active { width: 20px; border-radius: 99px; opacity: 1; }
   .interest-copy h2 { margin: 0 0 8px; font-size: clamp(30px, 8vw, 40px); line-height: 1; }
   .interest-copy p { font-size: 15px; }
-  .routes-cta { width: 100%; min-height: 58px; margin-top: 18px; padding: 10px 16px; font-size: 18px; }
+  .routes-cta { min-height: 58px; margin-top: 18px; padding: 10px 18px; font-size: 18px; }
   .card-controls { display: none; }
   .album-card { width: min(100%, 390px); }
   .track-info h2 { font-size: 42px; }

@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, Clapperboard, CodeXml, ExternalLink, Mail, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Bike, BriefcaseBusiness, Clapperboard, CodeXml, ExternalLink, Mail, Map, MessageCircleMore, Music2, Shapes, X } from '@lucide/vue'
 
 const topicIcons = { music: Music2, films: Clapperboard, hobbies: Shapes }
 const hobbyIcons = [BriefcaseBusiness, CodeXml, Bike, Music2]
@@ -510,8 +510,8 @@ onUnmounted(() => {
           <div class="interest-copy">
             <div class="interest-title-slot"><h2 :key="activeHobby">{{ t.hobbies.items[activeHobby].title }}</h2></div>
             <div class="interest-meta-slot"><p :key="activeHobby">{{ t.hobbies.items[activeHobby].details }}</p></div>
+            <button v-if="activeHobby === 2" class="routes-cta" type="button" @click="openRoutes"><Map :size="20" aria-hidden="true" /><span>{{ t.hobbies.openRoute }}</span></button>
             <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
-            <button v-if="activeHobby === 2" class="routes-cta" type="button" @click="openRoutes">{{ t.hobbies.openRoute }}</button>
           </div>
         </div>
       </div>
