@@ -216,7 +216,7 @@ a { text-decoration: none; }
   .profile h1 { font-size: clamp(82px, 27vw, 125px); }
   .profile-actions { align-items: stretch; flex-direction: column; gap: 18px; }
   .button { width: 100%; }
-  .contact-button { width: 100%; min-width: 0; justify-content: center; }
+  .contact-button { width: 100%; min-width: 0; justify-content: flex-start; }
   .scroll-cue { right: 15px; bottom: max(15px, env(safe-area-inset-bottom, 0px)); }
   .photo-carousel { width: calc(100% - 32px); max-width: 355px; justify-self: center; }
   .photo-card { border-radius: 27px; box-shadow: 7px 7px var(--ink); }
