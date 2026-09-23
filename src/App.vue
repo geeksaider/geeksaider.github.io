@@ -18,7 +18,8 @@ const swipeType = ref(null)
 const swipePointer = ref(null)
 const dragX = ref(0)
 const contactOpen = ref(false)
-const atPageEnd = ref(false)
+const scrollCueUp = ref(false)
+let scrollIntentAnchorY = 0
 const topicsGrid = ref(null)
 const topicScrollLeft = ref(0)
 const activeTopic = ref(0)
@@ -50,6 +51,7 @@ const content = {
     title: 'Nikita',
     explore: 'vybrať tému',
     scrollTop: 'späť na začiatok',
+    scrollDown: 'ďalšia sekcia',
     contact: 'Napísať mi',
     back: 'späť',
     previous: 'predchádzajúca karta', next: 'ďalšia karta',
@@ -109,7 +111,7 @@ const content = {
   },
   en: {
     title: 'Nikita',
-    explore: 'choose a topic', scrollTop: 'back to top', contact: 'Message me', back: 'back', previous: 'previous card', next: 'next card',
+    explore: 'choose a topic', scrollTop: 'back to top', scrollDown: 'next section', contact: 'Message me', back: 'back', previous: 'previous card', next: 'next card',
     facts: {
       title: 'Fun Facts',
       questions: [
@@ -274,11 +276,14 @@ function moveRoute(direction) {
 
 function updateScrollCue() {
   const topics = document.getElementById('topics')
-  if (!topics) {
-    atPageEnd.value = false
-    return
-  }
-  atPageEnd.value = window.scrollY > window.innerHeight * 0.5
+  if (!topics) return
+  const y = Math.max(0, window.scrollY)
+  const remaining = document.documentElement.scrollHeight - window.innerHeight - y
+  if (y < 8) scrollCueUp.value = false
+  else if (remaining < 8) scrollCueUp.value = true
+  else if (y > scrollIntentAnchorY + 6) scrollCueUp.value = false
+  else if (y < scrollIntentAnchorY - 6) scrollCueUp.value = true
+  if (Math.abs(y - scrollIntentAnchorY) > 6 || y < 8 || remaining < 8) scrollIntentAnchorY = y
 }
 
 function updateTopicPosition(event) {
@@ -299,10 +304,12 @@ function scrollToTopic(index) {
 }
 
 function scrollPage() {
-  if (atPageEnd.value) {
+  if (scrollCueUp.value) {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } else {
-    document.getElementById('topics')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const next = [...document.querySelectorAll('.facts, .topics')].find((section) => section.offsetTop > window.scrollY + 24)
+    if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    else window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' })
   }
 }
 
@@ -408,8 +415,8 @@ onUnmounted(() => {
           </div>
           <div class="photo-dots"><button v-for="(_, index) in photos" :key="index" :class="{ active: index === activePhoto }" :aria-label="`Photo ${index + 1}`" @pointerdown.stop @click.stop="activePhoto = index"></button></div>
         </div>
-        <button class="scroll-cue" :class="{ 'is-up': atPageEnd }" :aria-label="atPageEnd ? t.scrollTop : t.explore" @click="scrollPage">
-          <ArrowUp v-if="atPageEnd" :size="26" aria-hidden="true" />
+        <button class="scroll-cue" :class="{ 'is-up': scrollCueUp }" :aria-label="scrollCueUp ? t.scrollTop : t.scrollDown" @click="scrollPage">
+          <ArrowUp v-if="scrollCueUp" :size="26" aria-hidden="true" />
           <ArrowDown v-else :size="26" aria-hidden="true" />
         </button>
       </section>
