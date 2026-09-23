@@ -49,7 +49,7 @@ const content = {
     title: 'Nikita',
     explore: 'vybrať tému',
     scrollTop: 'späť na začiatok',
-    contact: 'napísať mi',
+    contact: 'Napísať mi',
     back: 'späť',
     previous: 'predchádzajúca karta', next: 'ďalšia karta',
     facts: {
@@ -98,8 +98,6 @@ const content = {
       title: 'Čomu sa venujem',
       routes: 'Moje cyklotrasy', route: 'Cyklotrasa', openRoute: 'Podrobnosti',
       distance: 'vzdialenosť', duration: 'čas', speed: 'priemerná rýchlosť',
-      speedNote: 'orientačne podľa vzdialenosti a času', swipeRoutes: 'potiahni pre ďalšiu trasu',
-      previousRoute: 'predchádzajúca trasa', nextRoute: 'ďalšia trasa', closeRoute: 'zatvoriť podrobnosti',
       items: [
         { title: 'Práca', color: 'var(--acid)', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita v práci', details: 'Pracoval som na viacerých pozíciách, od kuchára až po systémového analytika.' },
         { title: 'Programovanie', color: 'var(--pink)', photo: '/photos/programming.jpg', photoAlt: 'Kód na obrazovke notebooku', details: 'Tvorím weby a digitálne produkty.' },
@@ -110,7 +108,7 @@ const content = {
   },
   en: {
     title: 'Nikita',
-    explore: 'choose a topic', scrollTop: 'back to top', contact: 'message me', back: 'back', previous: 'previous card', next: 'next card',
+    explore: 'choose a topic', scrollTop: 'back to top', contact: 'Message me', back: 'back', previous: 'previous card', next: 'next card',
     facts: {
       title: 'Fun Facts',
       questions: [
@@ -157,8 +155,6 @@ const content = {
       title: 'What I spend time on',
       routes: 'My cycling routes', route: 'Cycling route', openRoute: 'Details',
       distance: 'distance', duration: 'time', speed: 'average speed',
-      speedNote: 'estimated from distance and time', swipeRoutes: 'swipe for the next route',
-      previousRoute: 'previous route', nextRoute: 'next route', closeRoute: 'close route details',
       items: [
         { title: 'Work', color: 'var(--acid)', photo: '/photos/hobby-work.jpg', photoAlt: 'Nikita at work', details: 'I have worked in several roles, from cook to systems analyst.' },
         { title: 'Programming', color: 'var(--pink)', photo: '/photos/programming.jpg', photoAlt: 'Code on a laptop screen', details: 'I build websites and digital products.' },
@@ -206,6 +202,14 @@ function setLanguage(value) {
   localStorage.setItem('profile-language', value)
 }
 
+function restoreViewPosition(targetView) {
+  nextTick(() => requestAnimationFrame(() => {
+    window.scrollTo({ top: scrollPositions[targetView] || 0, behavior: 'instant' })
+    if (targetView === 'home' && topicsGrid.value) topicsGrid.value.scrollTo({ left: topicScrollLeft.value, behavior: 'instant' })
+    updateScrollCue()
+  }))
+}
+
 function readHash() {
   const hash = location.hash.slice(1)
   const routeMatch = /^route-(\d+)$/.exec(hash)
@@ -220,13 +224,7 @@ function readHash() {
   } else {
     view.value = ['music', 'films', 'hobbies'].includes(hash) ? hash : 'home'
   }
-  nextTick(() => {
-    if (previousView !== view.value) {
-      window.scrollTo(0, scrollPositions[view.value] || 0)
-      if (view.value === 'home' && topicsGrid.value) topicsGrid.value.scrollLeft = topicScrollLeft.value
-    }
-    updateScrollCue()
-  })
+  if (previousView !== view.value) restoreViewPosition(view.value)
 }
 
 function openView(value) {
@@ -239,11 +237,7 @@ function goHome() {
   scrollPositions[view.value] = window.scrollY
   history.pushState(null, '', location.pathname + location.search)
   view.value = 'home'
-  nextTick(() => {
-    window.scrollTo(0, scrollPositions.home)
-    if (topicsGrid.value) topicsGrid.value.scrollLeft = topicScrollLeft.value
-    updateScrollCue()
-  })
+  restoreViewPosition('home')
 }
 
 function goBack() {
@@ -343,6 +337,7 @@ function moveInterest(type, direction) {
 }
 
 onMounted(() => {
+  history.scrollRestoration = 'manual'
   const saved = localStorage.getItem('profile-language')
   if (['sk', 'en'].includes(saved)) setLanguage(saved)
   readHash()
@@ -360,7 +355,7 @@ onUnmounted(() => {
 
 <template>
   <div class="app">
-    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home', 'home-topbar': view === 'home' }">
+    <header class="topbar container" :class="{ 'inner-topbar': view !== 'home', 'home-topbar': view === 'home', 'color-topbar': view === 'music' || view === 'films' }" :style="view === 'music' ? { '--active': currentMusic.color } : view === 'films' ? { '--active': currentFilm.color } : undefined">
       <button v-if="view === 'home'" class="logo" aria-label="Home" @click="goHome">N<span>.</span></button>
       <button v-else class="back-button" @click="goBack"><ArrowLeft :size="18" aria-hidden="true" />{{ t.back }}</button>
       <div class="language-picker">
@@ -395,7 +390,7 @@ onUnmounted(() => {
       </section>
 
       <section class="facts container" :aria-label="t.facts.title">
-        <div class="facts-heading"><h2>{{ t.facts.title }}</h2><span>{{ language === 'sk' ? 'ťukni na odpoveď' : 'tap an answer' }}</span></div>
+        <div class="facts-heading"><h2>{{ t.facts.title }}</h2></div>
         <div class="facts-grid">
           <div v-for="(question, index) in t.facts.questions" :key="index" class="fact-note">
             <i class="note-magnet" aria-hidden="true"></i>
@@ -433,8 +428,8 @@ onUnmounted(() => {
             <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in t.music.items" :key="index" :class="{ active: index === activeMusic }"></i></div>
           </div>
           <div class="interest-copy">
-            <div class="interest-title-slot"><h2 v-for="(item, index) in t.music.items" :key="item.title" :class="{ 'is-active': index === activeMusic }" :aria-hidden="index !== activeMusic">{{ item.title }}</h2></div>
-            <div class="interest-meta-slot"><p v-for="(item, index) in t.music.items" :key="item.title" :class="{ 'is-active': index === activeMusic }" :aria-hidden="index !== activeMusic">{{ item.artist }}</p></div>
+            <div class="interest-title-slot"><h2 :key="activeMusic">{{ currentMusic.title }}</h2></div>
+            <div class="interest-meta-slot"><p :key="activeMusic">{{ currentMusic.artist }}</p></div>
             <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('music', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('music', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
           </div>
         </div>
@@ -454,8 +449,8 @@ onUnmounted(() => {
             <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in t.films.items" :key="index" :class="{ active: index === activeFilm }"></i></div>
           </div>
           <div class="interest-copy">
-            <div class="interest-title-slot"><h2 v-for="(item, index) in t.films.items" :key="item.title" :class="{ 'is-active': index === activeFilm }" :aria-hidden="index !== activeFilm">{{ item.title }}</h2></div>
-            <div class="interest-meta-slot"><p v-for="(item, index) in t.films.items" :key="item.title" :class="{ 'is-active': index === activeFilm }" :aria-hidden="index !== activeFilm">{{ item.year }}</p></div>
+            <div class="interest-title-slot"><h2 :key="activeFilm">{{ currentFilm.title }}</h2></div>
+            <div class="interest-meta-slot"><p :key="activeFilm">{{ currentFilm.year }}</p></div>
             <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('films', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('films', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
           </div>
         </div>
@@ -482,8 +477,8 @@ onUnmounted(() => {
           </div>
           <div class="hobby-side">
             <div class="interest-copy">
-              <div class="interest-title-slot"><h2 v-for="(item, index) in t.hobbies.items" :key="item.title" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.title }}</h2></div>
-              <div class="interest-meta-slot"><p v-for="(item, index) in t.hobbies.items" :key="item.title" class="hobby-details" :class="{ 'is-active': index === activeHobby }" :aria-hidden="index !== activeHobby">{{ item.details }}</p></div>
+              <div class="interest-title-slot"><h2 :key="activeHobby">{{ t.hobbies.items[activeHobby].title }}</h2></div>
+              <div class="interest-meta-slot"><p :key="activeHobby" class="hobby-details">{{ t.hobbies.items[activeHobby].details }}</p></div>
               <div class="card-controls"><button :aria-label="t.previous" @click="moveInterest('hobbies', -1)"><ArrowLeft :size="21" aria-hidden="true" /></button><button :aria-label="t.next" @click="moveInterest('hobbies', 1)"><ArrowRight :size="21" aria-hidden="true" /></button></div>
               <button v-if="activeHobby === 2" class="routes-cta" type="button" @click="openRoutes">{{ t.hobbies.openRoute }} <ArrowUpRight :size="20" aria-hidden="true" /></button>
             </div>
@@ -494,29 +489,21 @@ onUnmounted(() => {
 
     <main v-else class="wrapped-page route-page">
       <div class="container inner-page">
-        <div class="route-overview-heading"><span>{{ t.hobbies.routes }}</span><strong>{{ routeNumber(activeRoute) }} / {{ cyclingRoutes.length }}</strong></div>
+        <div class="wrapped-heading"><h1>{{ t.hobbies.routes }}</h1></div>
         <div class="route-carousel-layout">
-          <div class="route-stack" :class="{ 'is-dragging': swipeType === 'routes' }" :style="{ '--drag-x': swipeType === 'routes' ? `${dragX}px` : '0px' }" @pointerdown="startSwipe($event, 'routes')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe">
+          <div class="route-stack" :class="{ 'is-dragging': swipeType === 'routes' }" :style="{ '--drag-x': swipeType === 'routes' ? `${dragX}px` : '0px' }" tabindex="0" :aria-label="t.hobbies.routes" @pointerdown="startSwipe($event, 'routes')" @pointermove="updateSwipe" @pointerup="finishSwipe" @pointercancel="cancelSwipe" @keydown.left.prevent="moveRoute(-1)" @keydown.right.prevent="moveRoute(1)">
             <article v-for="(route, index) in cyclingRoutes" :key="route.src" class="interest-card route-interest-card" :class="{ 'is-active': index === activeRoute, 'is-near': (index - activeRoute + cyclingRoutes.length) % cyclingRoutes.length <= 2 }" :style="{ '--card-offset': `${(index - activeRoute + cyclingRoutes.length) % cyclingRoutes.length}` }">
               <img v-if="(index - activeRoute + cyclingRoutes.length) % cyclingRoutes.length <= 2" :src="route.src" :alt="`${routeLabel(route, index)} — ${routeDistance(route)} km`" draggable="false">
             </article>
             <div class="swipe-indicator" aria-hidden="true"><i v-for="(_, index) in cyclingRoutes" :key="index" :class="{ active: index === activeRoute }"></i></div>
           </div>
           <div class="route-carousel-copy">
-            <small>{{ t.hobbies.route }} {{ routeNumber(activeRoute) }}</small>
-            <h1>{{ routeLabel(cyclingRoutes[activeRoute], activeRoute) }}</h1>
-            <p>{{ routeDistance(cyclingRoutes[activeRoute]) }} km · {{ routeDuration(cyclingRoutes[activeRoute]) }}</p>
+            <h2 :key="activeRoute">{{ routeLabel(cyclingRoutes[activeRoute], activeRoute) }}</h2>
             <div class="route-metrics">
               <div><span>{{ t.hobbies.distance }}</span><strong>{{ routeDistance(cyclingRoutes[activeRoute]) }} km</strong></div>
               <div><span>{{ t.hobbies.duration }}</span><strong>{{ routeDuration(cyclingRoutes[activeRoute]) }}</strong></div>
               <div><span>{{ t.hobbies.speed }}</span><strong>≈ {{ routeSpeed(cyclingRoutes[activeRoute]) }} km/h</strong></div>
             </div>
-            <small class="route-speed-note">{{ t.hobbies.speedNote }}</small>
-            <nav class="route-carousel-nav" :aria-label="t.hobbies.routes">
-              <button type="button" :aria-label="t.hobbies.previousRoute" @click="moveRoute(-1)"><ArrowLeft :size="22" aria-hidden="true" /></button>
-              <span>{{ routeNumber(activeRoute) }} / {{ cyclingRoutes.length }}</span>
-              <button type="button" :aria-label="t.hobbies.nextRoute" @click="moveRoute(1)"><ArrowRight :size="22" aria-hidden="true" /></button>
-            </nav>
           </div>
         </div>
       </div>
