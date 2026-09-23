@@ -238,12 +238,12 @@ a { text-decoration: none; }
   .topic-swipe-cue button::after { display: block; width: 7px; height: 7px; margin: auto; content: ''; background: var(--ink); border-radius: 50%; opacity: .3; transition: width 180ms ease, opacity 180ms ease; }
   .topic-swipe-cue button.active::after { width: 20px; border-radius: 99px; opacity: 1; }
   .wrapped-page { min-height: calc(100svh - 62px - env(safe-area-inset-top, 0px)); }
-  .inner-page { display: flex; min-height: calc(100svh - 62px - env(safe-area-inset-top, 0px)); flex-direction: column; justify-content: flex-start; padding-top: 24px; padding-bottom: max(18px, env(safe-area-inset-bottom, 0px)); }
+  .inner-page { display: flex; min-height: calc(100svh - 62px - env(safe-area-inset-top, 0px)); flex-direction: column; justify-content: flex-start; padding-top: 24px; padding-bottom: max(115px, calc(env(safe-area-inset-bottom, 0px) + 70px)); }
   .back-button { padding: 8px 12px; }
   .wrapped-heading { margin-top: 0; }
   .wrapped-heading h1 { font-size: clamp(38px, 10vw, 52px); line-height: .94; }
   .music-layout { grid-template-columns: 1fr; gap: 34px; margin-top: 38px; }
-  .interest-layout { grid-template-columns: 1fr; gap: 22px; margin-top: 20px; }
+  .interest-layout { grid-template-columns: 1fr; gap: 54px; margin-top: 20px; }
   .hobby-side { order: 0; padding-top: 0; }
   .interest-stack { width: min(100%, 310px); justify-self: center; }
   .interest-card:not(.is-active) { transform: translateY(calc(var(--card-offset) * 6px)) scale(calc(1 - var(--card-offset) * .045)) rotate(calc(var(--card-offset) * 2deg)); }
@@ -253,7 +253,7 @@ a { text-decoration: none; }
   .interest-copy h2 { margin: 0 0 8px; font-size: clamp(30px, 8vw, 40px); line-height: 1; }
   .interest-copy p { font-size: 15px; }
   .hobby-details { margin-top: 0 !important; font-size: 15px !important; }
-  .routes-cta { min-height: 54px; margin-top: 18px; padding: 11px 18px; font-size: 17px; }
+  .routes-cta { width: 100%; min-height: 68px; justify-content: center; margin-top: 24px; padding: 14px 20px; font-size: 20px; }
   .card-controls { display: none; }
   .album-card { width: min(100%, 390px); }
   .track-info h2 { font-size: 42px; }
@@ -264,7 +264,7 @@ a { text-decoration: none; }
   .film-card { grid-template-columns: 1fr; gap: 40px; }
   .film-poster { width: min(100%, 300px); justify-self: center; }
   .film-info h2 { font-size: 39px; }
-  .route-carousel-layout { grid-template-columns: 1fr; gap: 44px; margin-top: 20px; }
+  .route-carousel-layout { grid-template-columns: 1fr; gap: 54px; margin-top: 20px; }
   .route-stack { width: min(100%, 310px); justify-self: center; }
   .route-carousel-copy h2 { margin: 0 0 12px; font-size: clamp(30px, 8vw, 40px); }
   .route-metrics > div { min-height: 82px; gap: 10px; padding: 10px; }
